@@ -1,0 +1,12 @@
+{
+    "engineId": "alpaca1",
+    "title": "Article",
+    "fields": {
+        "title": {
+            "type": "text",
+            "label": "Title",
+            "required": true
+        }
+    },
+    "_form_key": "master"
+}

@@ -1,0 +1,40 @@
+{
+    "title": "Article",
+    "description": "Article",
+    "_parent": "n:node",
+    "type": "object",
+    "_type": "d:type",
+    "_qname": "schn:article",    
+    "properties": {
+        "title": {
+            "title": "Title",
+            "type": "string",
+            "required": true
+        },
+        "author": {
+            "title": "Author",
+            "type": "string",
+            "required": false
+        },
+        "year": {
+            "title": "Year",
+            "type": "string",
+            "required": false
+        },
+        "rating": {
+            "title": "Year",
+            "type": "string",
+            "required": false
+        },
+        "publisher": {
+            "title": "Publisher",
+            "type": "string",
+            "required": false
+        },
+        "placePublished": {
+            "title": "Place Published",
+            "type": "string",
+            "required": false
+        }
+    }
+}

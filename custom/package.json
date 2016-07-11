@@ -1,0 +1,22 @@
+{
+  "name": "cloudcms-import",
+  "version": "0.0.1",
+  "description": "Converts parse XML or CSV and import as JSON records to a Cloud CMS repository",
+  "dependencies": {
+    "async": "*",
+    "camel-case": "*",
+    "command-line-args": "*",
+    "command-line-usage": "*",
+    "csv": "*",
+    "gitana": "*",
+    "marked": "*",
+    "mime-types": "*",
+    "mkdirp": "*",
+    "sanitize-html": "*",
+    "to-markdown": "*",
+    "wrench": "*",
+    "xml2js": "*"
+  },
+  "optionalDependencies": {},
+  "private": true
+}
