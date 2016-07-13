@@ -176,7 +176,7 @@ module.exports = function() {
             "mergeAttrs": true,
             "preserveChildrenOrder": true,
             "normalizeTags": true,
-            "async": true
+            "async": false
         });
 
         // fs.readFile(inputXMLfilePath, 'utf8', function(err, data) {
