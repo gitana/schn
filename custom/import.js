@@ -15,7 +15,10 @@ var TYPES_PATH = "./docs/types";
 var TYPE_QNAME__CATEGORY = "schn:category";
 
 // debug only when using charles proxy ssl proxy when intercepting cloudcms api calls:
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+if (process.env.NODE_ENV !== "production")
+{
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+}
 
 var cmdOptions = [
   {
@@ -28,8 +31,10 @@ var cmdOptions = [
         {name: 'help', alias: 'h', type: Boolean},
         {name: 'list-types', alias: 'l', type: Boolean, description: 'list local type definitions'},
         {name: 'type-name', alias: 't', type: String, description: '_qname of the type definition to import'},
-        {name: 'csv-path', alias: 'c', type: String, description: 'path to content csv file to import'},
-        {name: 'xml-path', alias: 'x', type: String, description: 'path to content xml file to import'},
+        {name: 'csv-file-path', alias: 'c', type: String, description: 'path to content csv file to import'},
+        {name: 'xml-file-path', alias: 'x', type: String, description: 'path to content xml file to import'},
+        {name: 'xml-folder-path', alias: 'f', type: String, description: 'path to root folder to crawl for content xml files to import'},
+        {name: 'cms-path', alias: 'm', type: String, description: 'root path within cms to store records. additional path elements and file name are calculated'},
         {name: 'category', alias: 'a', type: String, description: 'name of category to associate to. ex.: --category "Respiratory World Wide"'},
         {name: 'property-name', alias: 'p', type: String, multiple: true, description: 'name of an extra property to set ex.: -p contentType"'},
         {name: 'property-value', alias: 'v', type: String, multiple: true, description: 'value of the extra property ex.: -v article"'},
@@ -44,15 +49,17 @@ var cmdOptions = [
 var options = commandLineArgs(cmdOptions[1].optionList);
 
 console.log(commandLineUsage(options));
-if(options.help || (!options["csv-path"] && !options["type-name"] && !options["list-types"]))
+if(options.help || (!options["csv-file-path"] && !options["type-name"] && !options["list-types"]))
 {
     console.log(commandLineUsage(cmdOptions));
     return;
 }
 
 var branchId = options["branch"] || "master";
-var csvPath = options["csv-path"];
-var xmlPath = options["xml-path"];
+var csvPath = options["csv-file-path"];
+var xmlPath = options["xml-file-path"];
+var xmlFolderPath = options["xml-folder-path"];
+var cmsPath = options["cms-path"];
 var typeDefinitions = listTypeDefinitions();
 var importTypeName = options["type-name"];
 var importType = typeDefinitions[importTypeName];
@@ -115,14 +122,13 @@ if (csvPath && importType) {
 else if (xmlPath && importType)
 {
     // import list of nodes from records in an xml file
-    var headers = [];
     util.parseXMLFile(xmlPath, function(err, data){
         if (err) {
             console.log("error loading xml " + err);
             return;
         }
 
-        var nodes = prepareXmlNodes(data);
+        var nodes = prepareXmlNodes(data, xmlPath, cmsPath);
 
         // console.log(JSON.stringify(nodes));
         if (nodes.length==0)
@@ -138,6 +144,45 @@ else if (xmlPath && importType)
             createNodes(branchId, nodes, category, deleteNodes);
         }        
     });
+}
+else if (xmlFolderPath && importType)
+{
+    // recurse into given folder and parse any XML files that are found. import the records defined in the xml files
+    var xmlFilePaths = util.findAllFiles(xmlFolderPath, ".xml");
+    for(var i = 0; i < xmlFilePaths.length; i++) {
+        console.log(xmlFilePaths[i]);
+
+        // import list of nodes from records in this xml file
+        var importFilePath = path.join(xmlFolderPath, xmlFilePaths[i]);
+        util.parseXMLFile(importFilePath, function(err, data){
+            if (err) {
+                console.log("error loading xml " + err);
+                return;
+            }
+
+            var cmsFolderPath = xmlFilePaths[i];
+            if (cmsPath) {
+                cmsFolderPath = path.join(cmsPath, xmlFilePaths[i]);
+            }
+
+            var nodes = prepareXmlNodes(data, importFilePath, cmsFolderPath);
+
+            // console.log(JSON.stringify(nodes));
+            if (nodes.length==0)
+            {
+                console.log("No nodes found to import");
+                return;
+            }
+
+            console.log("creating nodes. count: " + nodes.length);
+            
+            if (!simulate)
+            {
+                createNodes(branchId, nodes, category, deleteNodes);
+            }        
+        });
+
+    }
 }
 else if (options["list-types"])
 {
@@ -319,51 +364,83 @@ function writeNodes(context, callback) {
     });
 }
 
-function prepareXmlNodes(data) {
-    var nodes = [];
-
-    // console.log("data: \n" + JSON.stringify(data));
-    if (Gitana.isArray(data.export.article))
+function addKeysToNode(node, data) {
+    if (typeof data === "object")
     {
-        data = data.export.article
-    }
-    else
-    {
-        data = data.export.article
-    }
-    
-    for(var i = 0; i < data.length; i++) {
-        var node = newArticleNode(importTypeName, {
-            "title": data[i].title,
-            "year": data[i].year,
-            "author": data[i].author,
-            "body": data[i].body,
-            "journal": data[i].journal,
-            "lastUpdate": data[i].lastupdate,
-            "originalDocument": data[i].originaldocument,
-            "placePublished": data[i].placepublished,
-            "publisher": data[i].publisher,
-            "rating": data[i].rating,
-            "importSource": xmlPath
-        });
-
-        if (data[i].tag)
-        {
-            if (Gitana.isArray(data[i].tag))
+        for(var key in data) {
+            var camelKey = camel(key) || "_";
+            if (data[key].style)
             {
-                node.tag = [];
-                for(var j = 0; j < data[i].tag.length; j++) {
-                    node.tag.push(data[i].tag[j]);
-                }
-
+                node[camelKey] = data[key].style._;
             }
             else
             {
-                node.tag = data[i].tag;
+                node[camelKey] = {};
+                addKeysToNode(node[camelKey], data[key]);
             }
-            
         }
+    }
+    else if (Gitana.isArray(data))
+    {
+        var camelKey = camel(key) || "_";
+        node[camelKey] = [];
+        for(var i = 0; i < data[key]; i++)
+        {
+            node[i] = "";
+            addKeysToNode(node[i], data[key][i]);
+        }
+    }
+    else
+    {
+        node = data;
+    }
+}
+
+function prepareXmlNodes(data, xmlFilePath, cmsPath) {
+    var nodes = [];
+
+    // console.log("data: \n" + JSON.stringify(data));
+    data = data.xml.records.record;
+    
+    for(var i = 0; i < data.length; i++) {
+        var node = newArticleNode(importTypeName, {
+            "importSource": xmlFilePath
+        });
+
+        addKeysToNode(node, data[i]);
+
+        // calculate path to store withing Cloud CMS
+        if (node.titles && node.titles.title) {
+            node.title = node.titles.title;
+
+            // if cmsPath is defined then store in a folder structure within Cloud CMS
+            if (cmsPath) {
+                node._filePath = path.join(cmsPath, xmlFilePath, node.title)
+            }
+        }
+        else
+        {
+            console.log("Warning. Node found with no title " + JSON.stringify(node));
+        }
+
+        // tag can be an array
+        // if (data[i].tag)
+        // {
+        //     if (Gitana.isArray(data[i].tag))
+        //     {
+        //         node.tag = [];
+        //         for(var j = 0; j < data[i].tag.length; j++) {
+        //             node.tag.push(data[i].tag[j]);
+        //         }
+
+        //     }
+        //     else
+        //     {
+        //         node.tag = data[i].tag;
+        //     }            
+        // }
         
+        // add optional properties define don command line
         if (propertyNames) {
             for(var j = 0; j < propertyNames.length; j++) {
                 node[propertyNames[j]] = propertyValues[j] || "";
@@ -371,7 +448,7 @@ function prepareXmlNodes(data) {
         }
 
         // console.log("adding node: " + JSON.stringify(node));
-        console.log("adding node: " + JSON.stringify(node.id));
+        console.log("adding node: " + JSON.stringify(node.id || node.title));
         nodes.push(node);
     }
 
@@ -448,8 +525,6 @@ function extractImagePath(markdownText) {
 function newArticleNode(typeName, defaults) {
     var node = {
         "_type": typeName,
-        "title": "",
-        "body": "",
         "imported": true
     };
     

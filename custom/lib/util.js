@@ -179,15 +179,25 @@ module.exports = function() {
             "async": true
         });
 
-        fs.readFile(inputXMLfilePath, 'utf8', function(err, data) {
-            xml2jsParser.parseString(data, function (err, result) {
-                if(err)
-                {
-                    return callback(err);
-                }
+        // fs.readFile(inputXMLfilePath, 'utf8', function(err, data) {
+        //     xml2jsParser.parseString(data, function (err, result) {
+        //         if(err)
+        //         {
+        //             return callback(err);
+        //         }
 
-                return callback(null, result);
-            });
+        //         return callback(null, result);
+        //     });
+        // });
+
+        var data = fs.readFileSync(inputXMLfilePath, 'utf8');
+        xml2jsParser.parseString(data, function (err, result) {
+            if(err)
+            {
+                return callback(err);
+            }
+
+            return callback(null, result);
         });
     }
 
@@ -223,6 +233,22 @@ module.exports = function() {
                 var fullPath = path.join(dirPath, allFiles[i]);
 
                 paths.push(fullPath);
+            }
+        }
+
+        return paths;
+    };
+
+    var findAllFiles = r.findAllFiles = function(dirPath, extension)
+    {
+        var paths = [];
+
+        var allFiles = wrench.readdirSyncRecursive(dirPath);
+        for (var i = 0; i < allFiles.length; i++)
+        {
+            if (path.extname(allFiles[i]) === extension)
+            {
+                paths.push(allFiles[i]);
             }
         }
 
