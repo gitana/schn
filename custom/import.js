@@ -149,8 +149,10 @@ else if (xmlFolderPath && importType)
 {
     // recurse into given folder and parse any XML files that are found. import the records defined in the xml files
     var xmlFilePaths = util.findAllFiles(xmlFolderPath, ".xml");
+    console.log("found xml files. count: " + xmlFilePaths.length);
+xmlFilePaths = xmlFilePaths.slice(0, 1);
     for(var i = 0; i < xmlFilePaths.length; i++) {
-        console.log(xmlFilePaths[i]);
+        // console.log(xmlFilePaths[i]);
 
         // import list of nodes from records in this xml file
         var importFilePath = path.join(xmlFolderPath, xmlFilePaths[i]);
@@ -162,7 +164,7 @@ else if (xmlFolderPath && importType)
 
             var cmsFolderPath = xmlFilePaths[i];
             if (cmsPath) {
-                cmsFolderPath = path.join(cmsPath, xmlFilePaths[i]);
+                cmsFolderPath = path.join(cmsPath, xmlFilePaths[i].replace(".xml", ""));
             }
 
             var nodes = prepareXmlNodes(data, importFilePath, cmsFolderPath);
@@ -178,11 +180,13 @@ else if (xmlFolderPath && importType)
             
             if (!simulate)
             {
-                createNodes(branchId, nodes, category, deleteNodes);
+                DELETE_QUERY.importSource = importFilePath;
+                createNodes(branchId, nodes, category, deleteNodes, DELETE_QUERY);
             }        
         });
-
     }
+
+    console.log("Done importing xml files");
 }
 else if (options["list-types"])
 {
@@ -245,7 +249,7 @@ else
     return;    
 }
 
-function createNodes(branchId, nodes, category, deleteNodes) {
+function createNodes(branchId, nodes, category, deleteNodes, deleteQuery) {
 
     var context = {
         useBulk: false,
@@ -256,7 +260,7 @@ function createNodes(branchId, nodes, category, deleteNodes) {
         categoryNode: null,
         categoryNodeRef: null,
         deleteNodes: deleteNodes,
-        deleteQuery: DELETE_QUERY
+        deleteQuery: deleteQuery
     }
 
     async.waterfall([
@@ -348,9 +352,16 @@ function deleteExistingNodes(context, callback) {
         return callback(null, context);
     }
 
-    util.deleteNodes(branch, deleteQuery, function(err) {
-        return callback(err, context);
-    });
+    if (deleteQuery)
+    {
+        util.deleteNodes(branch, deleteQuery, function(err) {
+            return callback(err, context);
+        });
+    }
+    else
+    {
+        return callback(null, context);
+    }
 }
 
 function writeNodes(context, callback) {
@@ -415,7 +426,7 @@ function prepareXmlNodes(data, xmlFilePath, cmsPath) {
 
             // if cmsPath is defined then store in a folder structure within Cloud CMS
             if (cmsPath) {
-                node._filePath = path.join(cmsPath, xmlFilePath, node.title)
+                node._filePath = path.join(cmsPath, node.title)
             }
         }
         else
