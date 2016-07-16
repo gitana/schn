@@ -121,6 +121,8 @@ if (csvPath && importType) {
 }
 else if (xmlPath && importType)
 {
+    var totalRecords = 0;
+
     // import list of nodes from records in an xml file
     util.parseXMLFile(xmlPath, function(err, data){
         if (err) {
@@ -138,19 +140,26 @@ else if (xmlPath && importType)
         }
 
         console.log("creating nodes. count: " + nodes.length);
+        totalRecords += nodes.length;
         
         if (!simulate)
         {
             createNodes(branchId, nodes, category, deleteNodes);
         }        
     });
+
+    console.log("totalRecords: " + totalRecords);
 }
 else if (xmlFolderPath && importType)
 {
+    var totalRecords = 0;
+
+    var attachmentPath = "./docs/import/attachments/unzipped"
+
     // recurse into given folder and parse any XML files that are found. import the records defined in the xml files
     var xmlFilePaths = util.findAllFiles(xmlFolderPath, ".xml");
     console.log("found xml files. count: " + xmlFilePaths.length);
-xmlFilePaths = xmlFilePaths.slice(0, 1);
+// xmlFilePaths = xmlFilePaths.slice(0, 1);
     for(var i = 0; i < xmlFilePaths.length; i++) {
         // console.log(xmlFilePaths[i]);
 
@@ -167,7 +176,7 @@ xmlFilePaths = xmlFilePaths.slice(0, 1);
                 cmsFolderPath = path.join(cmsPath, xmlFilePaths[i].replace(".xml", ""));
             }
 
-            var nodes = prepareXmlNodes(data, importFilePath, cmsFolderPath);
+            var nodes = prepareXmlNodes(data, importFilePath, cmsFolderPath, attachmentPath);
 
             // console.log(JSON.stringify(nodes));
             if (nodes.length==0)
@@ -177,6 +186,7 @@ xmlFilePaths = xmlFilePaths.slice(0, 1);
             }
 
             console.log("creating nodes. count: " + nodes.length);
+            totalRecords += nodes.length;
             
             if (!simulate)
             {
@@ -187,6 +197,7 @@ xmlFilePaths = xmlFilePaths.slice(0, 1);
     }
 
     console.log("Done importing xml files");
+    console.log("totalRecords: " + totalRecords);
 }
 else if (options["list-types"])
 {
@@ -386,8 +397,24 @@ function addKeysToNode(node, data) {
             }
             else
             {
-                node[camelKey] = {};
-                addKeysToNode(node[camelKey], data[key]);
+                if (typeof data[key] === "object")
+                {
+                    node[camelKey] = {};
+                    addKeysToNode(node[camelKey], data[key]);
+                }
+                else if (Gitana.isArray(data))
+                {
+                    node[camelKey] = [];
+                    for(var i = 0; i < data.length; i++)
+                    {
+                        node[camelKey].push("");
+                        addKeysToNode(node[camelKey][i], data[key]);
+                    }
+                }
+                else
+                {
+                    node[camelKey] = data[key];
+                }
             }
         }
     }
@@ -407,23 +434,136 @@ function addKeysToNode(node, data) {
     }
 }
 
-function prepareXmlNodes(data, xmlFilePath, cmsPath) {
+function nestedKey(data, propertyName) {
+    var keys = propertyName.split(".");
+    var dataValue = data;
+    var value = "";
+    for(var i = 0; i < keys.length; i++)
+    {
+        var key = keys[i];
+        if (dataValue[key])
+        {
+            dataValue = dataValue[key];
+            value = dataValue;
+        }
+        else
+        {
+            return value
+        }
+    }
+
+    return value;
+}
+
+function nestedArrayKey(data, propertyName, propertyName2) {
+    var keys = propertyName.split(".");
+    var dataValue = data;
+    var value = "";
+    for(var i = 0; i < keys.length; i++)
+    {
+        var key = keys[i];
+        if (dataValue[key])
+        {
+            dataValue = dataValue[key];
+            value = dataValue;
+        }
+        else
+        {
+            value = [];
+            break;
+        }
+    }
+
+    if (Gitana.isArray(value) && propertyName2)
+    {
+        for(var i = 0; i < value.length; i++)
+        {
+            value[i] = nestedKey(value[i], propertyName2);
+        }
+    }
+
+    return value || [];
+}
+
+function prepareXmlNodes(data, xmlFilePath, cmsPath, attachmentPath) {
     var nodes = [];
 
     // console.log("data: \n" + JSON.stringify(data));
     data = data.xml.records.record;
     
     for(var i = 0; i < data.length; i++) {
+        var title = nestedArrayKey(data[i], "titles.title.style", "_"); // special case for when title is an array
+        if (Gitana.isArray(title)) {
+            if (title[0])
+            {
+                title = title.join("\n");
+            }
+            else
+            {
+                title = title.join("");
+            }
+        }
+        else
+        {
+            title = nestedKey(data[i], "titles.title.style._") || nestedKey(data[i], "titles.title.style");
+        }
+        
+        var secondaryTitle = nestedKey(data[i], "titles.secondary-title.style._") || nestedKey(data[i], "titles.secondary-title.style");
+
         var node = newArticleNode(importTypeName, {
-            "importSource": xmlFilePath
+            "importSource": xmlFilePath,
+            "title": title || secondaryTitle,
+            "secondaryTitle": secondaryTitle,
+            "altTitle": nestedKey(data[i], "titles.alt-title.style._"),
+            "abstract": nestedKey(data[i], "abstract.style._"),
+            "year": nestedKey(data[i], "dates.year.style._"),
+            "contributors": [
+                {
+                    "authors": nestedArrayKey(data[i], "contributors.authors.author", "style._"),
+                    "tertiaryAuthors": nestedArrayKey(data[i], "contributors.tertiary-authors.author", "style._")
+                }
+            ],
+            "periodical": nestedKey(data[i], "periodical.full-title.style._"),
+            "altPeriodical": nestedKey(data[i], "alt-periodical.full-title.style._"),
+            "authAddress": nestedKey(data[i], "auth-address.style._"),
+            "electronicResourceNumber": nestedKey(data[i], "electronic-resource-num.year.style._"),
+            "recNumber": data[i]["rec-number"] || "",
+            "keywords": nestedArrayKey(data[i], "keywords.keyword", "style._"),
+            "publisher": nestedKey(data[i], "publisher.style._"),
+            "pubLocation": nestedKey(data[i], "pub-location.style._"),
+            "url": nestedKey(data[i], "urls.pdf-urls.url"),
+            "relatedUrl": nestedKey(data[i], "urls.related-urls.url.style._"),
+            "workType": nestedKey(data[i], "work-type.style._"),
+            "isbn": nestedKey(data[i], "isbn.style._"),
+            "pages": nestedKey(data[i], "pages.style._"),
+            "volume": nestedKey(data[i], "volume.style._"),
+            "notes": nestedKey(data[i], "notes.style._"),
+            "accessionNum": nestedKey(data[i], "accession-num.style._")
+            
         });
 
-        addKeysToNode(node, data[i]);
+        if (node.url)
+        {
+            var idx = node.url.indexOf("internal-pdf://");
+            if (idx > -1)
+            {
+                idx += 15;
+                var localPath = path.join(attachmentPath, node.url.substring(idx));
+                node.attachments = [
+                    {
+                        "path": localPath,
+                        "title": path
+                
+            }
+            var url = node.url.substring()
+            attachmentId.substring(0, attachmentId.indexOf(".")
+            node.attachmentPath = path.join(attachmentPath, node.url);
+        }
 
-        // calculate path to store withing Cloud CMS
-        if (node.titles && node.titles.title) {
-            node.title = node.titles.title;
+        // addKeysToNode(node, data[i]);
 
+        // calculate path to store within Cloud CMS
+        if (node.title) {
             // if cmsPath is defined then store in a folder structure within Cloud CMS
             if (cmsPath) {
                 node._filePath = path.join(cmsPath, node.title)
@@ -431,26 +571,9 @@ function prepareXmlNodes(data, xmlFilePath, cmsPath) {
         }
         else
         {
-            console.log("Warning. Node found with no title " + JSON.stringify(node));
+            console.log("Warning. Node found with no title. It will be stored without a path: " + JSON.stringify(node));
         }
 
-        // tag can be an array
-        // if (data[i].tag)
-        // {
-        //     if (Gitana.isArray(data[i].tag))
-        //     {
-        //         node.tag = [];
-        //         for(var j = 0; j < data[i].tag.length; j++) {
-        //             node.tag.push(data[i].tag[j]);
-        //         }
-
-        //     }
-        //     else
-        //     {
-        //         node.tag = data[i].tag;
-        //     }            
-        // }
-        
         // add optional properties define don command line
         if (propertyNames) {
             for(var j = 0; j < propertyNames.length; j++) {
@@ -459,7 +582,7 @@ function prepareXmlNodes(data, xmlFilePath, cmsPath) {
         }
 
         // console.log("adding node: " + JSON.stringify(node));
-        console.log("adding node: " + JSON.stringify(node.id || node.title));
+        // console.log("adding node: " + JSON.stringify(node.id || node.title));
         nodes.push(node);
     }
 
