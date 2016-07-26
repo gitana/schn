@@ -34,6 +34,8 @@ var cmdOptions = [
         {name: 'csv-file-path', alias: 'c', type: String, description: 'path to content csv file to import'},
         {name: 'xml-file-path', alias: 'x', type: String, description: 'path to content xml file to import'},
         {name: 'xml-folder-path', alias: 'f', type: String, description: 'path to root folder to crawl for content xml files to import'},
+        {name: 'prepare-package', alias: 'k', type: String, description: 'store imported json and attachments in a local path. stored documents will be in the format expected by the cloud cms cli package command'},
+        {name: 'attachment-path', alias: 'n', type: String, description: 'path to local folder where attachments can be found'},
         {name: 'cms-path', alias: 'm', type: String, description: 'root path within cms to store records. additional path elements and file name are calculated'},
         {name: 'category', alias: 'a', type: String, description: 'name of category to associate to. ex.: --category "Respiratory World Wide"'},
         {name: 'property-name', alias: 'p', type: String, multiple: true, description: 'name of an extra property to set ex.: -p contentType"'},
@@ -68,6 +70,8 @@ var propertyValues = options["property-value"];
 var simulate = options["simulate"] || false;
 var category = options["category"];
 var deleteNodes = options["deleteNodes"];
+var packagePath = options["prepare-package"];
+var attachmentPath = options["attachment-path"];
 
 var DELETE_QUERY = {
     "_type": importTypeName,
@@ -86,7 +90,7 @@ var gitanaConfig = JSON.parse("" + fs.readFileSync("./gitana.json"));
 gitanaConfig.username = rootCredentials.username;
 gitanaConfig.password = rootCredentials.password;
 
-if (csvPath && importType) {
+if (!packagePath && csvPath && importType) {
     // import list of nodes from rows of a csv file
     util.loadCsvFile(csvPath, function(err, data){
         // import records from a CSV file directly into Cloud CMS
@@ -119,7 +123,7 @@ if (csvPath && importType) {
         }
     });
 }
-else if (xmlPath && importType)
+else if (!packagePath && xmlPath && importType)
 {
     var totalRecords = 0;
 
@@ -154,8 +158,6 @@ else if (xmlFolderPath && importType)
 {
     var totalRecords = 0;
 
-    var attachmentPath = "./docs/import/attachments/unzipped"
-
     // recurse into given folder and parse any XML files that are found. import the records defined in the xml files
     var xmlFilePaths = util.findAllFiles(xmlFolderPath, ".xml");
     console.log("found xml files. count: " + xmlFilePaths.length);
@@ -187,8 +189,12 @@ else if (xmlFolderPath && importType)
 
             console.log("creating nodes. count: " + nodes.length);
             totalRecords += nodes.length;
-            
-            if (!simulate)
+
+            if (packagePath)
+            {
+                writePackage(nodes, packagePath, attachmentPath);
+            }
+            else if (!simulate )
             {
                 DELETE_QUERY.importSource = importFilePath;
                 createNodes(branchId, nodes, category, deleteNodes, DELETE_QUERY);
@@ -258,6 +264,143 @@ else
 
     console.log(cli.getUsage(options));
     return;    
+}
+
+function writePackage(nodes, packagePath, attachmentPath) {
+
+    var context = {
+        nodes: nodes,
+        attachments: [],
+        attachmentPath: attachmentPath,
+        packagePath: path.join(packagePath, "imports.json")
+    }
+
+    async.waterfall([
+        async.apply(async.ensureAsync(resolveAttachments), context),
+        async.ensureAsync(writeNodesToPackage)
+    ], function (err, context) {
+        if (err)
+        {
+            console.log("Error creating package " + err);
+        }
+        else
+        {
+            console.log("Nodes have been imported succesfully");
+        }
+    });
+
+    return;
+}
+
+function resolveAttachments(context, callback) {
+    for(var i = 0; i < context.nodes.length; i++)
+    {
+        context.nodes[i]["relatedDoc"] = [];
+        var relatedDocPaths = findRelatedDocs(context.nodes[i], context.attachmentPath);
+        if (relatedDocPaths.length > 0)
+        {
+            for(var j = 0; j < relatedDocPaths.length; j++)
+            {
+                var alias = "alias_" + i + "_" + j;
+
+                context.nodes[i]["relatedDoc"].push(
+                    {
+                        "relatedDoc": {
+                            "__related_node__": alias
+                        }
+                    }
+                );
+
+                context.attachments.push({
+                    "_doc": alias,
+                    "attachmentId": "default",
+                    "path": relatedDocPaths[j]
+                });
+            }
+        }
+    }
+
+    callback(null, context);
+}
+
+function findRelatedDocs(node, attachmentPath) {
+    var relatedDocs = [];
+
+    if (node.relatedUrl && node.relatedUrl["pdf-urls"] && node.relatedUrl["pdf-urls"].url)
+    {
+        var url = node.relatedUrl["pdf-urls"].url || "";
+        if (!url) return;
+
+        var urls = [];
+        // if (url.indexOf("Cox,") > -1)
+        // {
+        //     urls = url.split(",");
+        // }
+        if (url.indexOf(",") > -1)
+        {
+            urls = url.split(",");
+        }
+        else
+        {
+            urls.push(url);
+        }
+
+        for(var i = 0; i < urls.length; i++)
+        {
+            var thisUrl = urls[i];
+// console.log("thisUrl " + thisUrl);
+            if (thisUrl.indexOf("://") > -1)
+            {
+                // console.log("url " + urls[i]);
+                thisUrl = urls[i].substring(thisUrl.indexOf("://") + 3);
+            }
+console.log("thisUrl " + thisUrl);
+            var filePath = path.resolve(path.join(attachmentPath, thisUrl));
+// console.log("filePath " + filePath);
+            // var fileStats = fs.statSync(filePath);
+            // if (fileStats.isFile())
+            // {
+            //     relatedDocs.push(filePath);
+            // }
+
+            // var canRead = fs.accessSync(filePath, fs.R_OK);
+            // if (canRead)
+            // {
+            //     relatedDocs.push(filePath);
+            // }
+
+            if (fs.existsSync(filePath))
+            {
+                relatedDocs.push(filePath);
+            }
+        }
+    }
+
+    return relatedDocs;
+}
+
+function writeNodesToPackage(context, callback) {
+    context.writeStream = fs.createWriteStream(context.packagePath, {
+        flags: 'w',
+        defaultEncoding: 'utf8',
+        fd: null,
+        mode: 0o666,
+        autoClose: true
+    });
+
+    var packageJSON = {
+        "objects": context.nodes,
+        "attachments": context.attachments
+    }
+
+    for(var i = 0; i < context.nodes.length; i++)
+    {
+        context.writeStream.write(JSON.stringify(packageJSON));
+    }
+
+    context.writeStream.end();
+
+    callback(null, context);
 }
 
 function createNodes(branchId, nodes, category, deleteNodes, deleteQuery) {
@@ -542,23 +685,25 @@ function prepareXmlNodes(data, xmlFilePath, cmsPath, attachmentPath) {
             
         });
 
-        if (node.url)
-        {
-            var idx = node.url.indexOf("internal-pdf://");
-            if (idx > -1)
-            {
-                idx += 15;
-                var localPath = path.join(attachmentPath, node.url.substring(idx));
-                node.attachments = [
-                    {
-                        "path": localPath,
-                        "title": path
+        // if (node.url)
+        // {
+        //     var idx = node.url.indexOf("internal-pdf://");
+        //     if (idx > -1)
+        //     {
+        //         idx += 15;
+        //         var localPath = path.join(attachmentPath, node.url.substring(idx));
+        //         node.attachments = [
+        //             {
+        //                 "path": localPath,
+        //                 "title": path
+        //             }
+        //         ]
                 
-            }
-            var url = node.url.substring()
-            attachmentId.substring(0, attachmentId.indexOf(".")
-            node.attachmentPath = path.join(attachmentPath, node.url);
-        }
+        //     }
+        //     var url = node.url.substring()
+        //     attachmentId.substring(0, attachmentId.indexOf(".")
+        //     node.attachmentPath = path.join(attachmentPath, node.url);
+        // }
 
         // addKeysToNode(node, data[i]);
 
