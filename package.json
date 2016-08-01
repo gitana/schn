@@ -1,0 +1,14 @@
+{
+  "name": "cms",
+  "version": "0.0.1",
+  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:gitana/schn.git"
+  },
+  "dependencies": {
+    "async": "*"
+  },
+  "optionalDependencies": {},
+  "private": true
+}

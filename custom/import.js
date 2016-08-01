@@ -14,6 +14,8 @@ var util = require("./lib/util");
 var TYPES_PATH = "./docs/types";
 var TYPE_QNAME__CATEGORY = "schn:category";
 
+var aliasCounter = 0;
+
 // debug only when using charles proxy ssl proxy when intercepting cloudcms api calls:
 if (process.env.NODE_ENV !== "production")
 {
@@ -156,7 +158,7 @@ else if (!packagePath && xmlPath && importType)
 }
 else if (xmlFolderPath && importType)
 {
-    var totalRecords = 0;
+    var nodes = [];
 
     // recurse into given folder and parse any XML files that are found. import the records defined in the xml files
     var xmlFilePaths = util.findAllFiles(xmlFolderPath, ".xml");
@@ -178,7 +180,7 @@ else if (xmlFolderPath && importType)
                 cmsFolderPath = path.join(cmsPath, xmlFilePaths[i].replace(".xml", ""));
             }
 
-            var nodes = prepareXmlNodes(data, importFilePath, cmsFolderPath, attachmentPath);
+            nodes.push(prepareXmlNodes(data, importFilePath, cmsFolderPath, attachmentPath));
 
             // console.log(JSON.stringify(nodes));
             if (nodes.length==0)
@@ -188,13 +190,8 @@ else if (xmlFolderPath && importType)
             }
 
             console.log("creating nodes. count: " + nodes.length);
-            totalRecords += nodes.length;
 
-            if (packagePath)
-            {
-                writePackage(nodes, packagePath, attachmentPath);
-            }
-            else if (!simulate )
+            if (!packagePath && !simulate )
             {
                 DELETE_QUERY.importSource = importFilePath;
                 createNodes(branchId, nodes, category, deleteNodes, DELETE_QUERY);
@@ -202,8 +199,15 @@ else if (xmlFolderPath && importType)
         });
     }
 
+    console.log("Done parsing xml files. count: " + nodes.length);
+
+    if (packagePath)
+    {
+        console.log("Creating package");
+        writePackage(nodes, packagePath, attachmentPath);
+    }
+
     console.log("Done importing xml files");
-    console.log("totalRecords: " + totalRecords);
 }
 else if (options["list-types"])
 {
@@ -275,6 +279,8 @@ function writePackage(nodes, packagePath, attachmentPath) {
         packagePath: path.join(packagePath, "imports.json")
     }
 
+    console.log("Writing package to " + context.packagePath);
+
     async.waterfall([
         async.apply(async.ensureAsync(resolveAttachments), context),
         async.ensureAsync(writeNodesToPackage)
@@ -289,6 +295,8 @@ function writePackage(nodes, packagePath, attachmentPath) {
         }
     });
 
+    console.log("Done writing package to " + context.packagePath);
+
     return;
 }
 
@@ -301,7 +309,7 @@ function resolveAttachments(context, callback) {
         {
             for(var j = 0; j < relatedDocPaths.length; j++)
             {
-                var alias = "alias_" + i + "_" + j;
+                var alias = "alias_" + aliasCounter++;
 
                 context.nodes[i]["relatedDoc"].push(
                     {
@@ -314,7 +322,7 @@ function resolveAttachments(context, callback) {
                 context.attachments.push({
                     "_doc": alias,
                     "attachmentId": "default",
-                    "path": relatedDocPaths[j]
+                    "path": path.join("Article Documents", relatedDocPaths[j])
                 });
             }
         }
@@ -332,43 +340,37 @@ function findRelatedDocs(node, attachmentPath) {
         if (!url) return;
 
         var urls = [];
-        // if (url.indexOf("Cox,") > -1)
+        // if (url.indexOf(",") > -1)
         // {
         //     urls = url.split(",");
         // }
-        if (url.indexOf(",") > -1)
+        // else
+        // {
+        //     urls.push(url);
+        // }
+
+        if (Gitana.isArray(url))
         {
-            urls = url.split(",");
+            for(var i = 0; i < url.length; i++)
+            {
+                urls.push(url[i].split("://")[1]);
+            }            
         }
         else
         {
-            urls.push(url);
+            urls = url.split("://");
         }
 
         for(var i = 0; i < urls.length; i++)
         {
             var thisUrl = urls[i];
-// console.log("thisUrl " + thisUrl);
-            if (thisUrl.indexOf("://") > -1)
+            if (thisUrl === "internal-pdf")
             {
-                // console.log("url " + urls[i]);
-                thisUrl = urls[i].substring(thisUrl.indexOf("://") + 3);
+                continue;
             }
-console.log("thisUrl " + thisUrl);
+
+            // console.log("thisUrl " + thisUrl);
             var filePath = path.resolve(path.join(attachmentPath, thisUrl));
-// console.log("filePath " + filePath);
-            // var fileStats = fs.statSync(filePath);
-            // if (fileStats.isFile())
-            // {
-            //     relatedDocs.push(filePath);
-            // }
-
-            // var canRead = fs.accessSync(filePath, fs.R_OK);
-            // if (canRead)
-            // {
-            //     relatedDocs.push(filePath);
-            // }
-
             if (fs.existsSync(filePath))
             {
                 relatedDocs.push(filePath);

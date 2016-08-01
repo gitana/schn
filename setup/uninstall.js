@@ -1,12 +1,7 @@
 module.exports = function(installer, callback)
 {
-    installer.removeContentInstances("wcm:page");
-    installer.removeContentInstances("wcm:template");
-    installer.removeContentPackage("core");
-
-    installer.removeContentAtPath("/app");
-    installer.removeContentAtPath("/content");
-
+    installer.removeContentInstances("schn:article");
+    installer.removeContentAtPath("/Article Documents");
     installer.execute(function(err, results) {
         callback(err, results);
     });

@@ -16,7 +16,7 @@ var loadImports = function(packager, filePath)
 {
     return function(callback) {
 
-        var context = JSON.parse("" + fs.readFileSync(filePath));
+        var context = JSON.parse(fs.readFileSync(filePath));
 
         callback(null, context);
     };
