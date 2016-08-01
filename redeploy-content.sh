@@ -6,6 +6,6 @@ cloudcms uninstall
 cloudcms uninstall
 
 # packages the archive, uploads and imports content into branch
-cloudcms package schn app 1
-cloudcms upload schn app 1
-cloudcms import schn app 1
+cloudcms package schn-import app 1
+cloudcms upload schn-import app 1
+cloudcms import schn-import app 1

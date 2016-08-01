@@ -276,14 +276,16 @@ function writePackage(nodes, packagePath, attachmentPath) {
         nodes: nodes,
         attachments: [],
         attachmentPath: attachmentPath,
-        packagePath: path.join(packagePath, "imports.json")
+        packagePath: path.join(packagePath, "imports.json"),
+        missingAttachmentsList: []
     }
 
     console.log("Writing package to " + context.packagePath);
 
     async.waterfall([
         async.apply(async.ensureAsync(resolveAttachments), context),
-        async.ensureAsync(writeNodesToPackage)
+        async.ensureAsync(writeNodesToPackage),
+        async.ensureAsync(writeMissingAttachmentsReport)
     ], function (err, context) {
         if (err)
         {
@@ -301,10 +303,12 @@ function writePackage(nodes, packagePath, attachmentPath) {
 }
 
 function resolveAttachments(context, callback) {
+    var newNodes = [];
+
     for(var i = 0; i < context.nodes.length; i++)
     {
         context.nodes[i]["relatedDoc"] = [];
-        var relatedDocPaths = findRelatedDocs(context.nodes[i], context.attachmentPath);
+        var relatedDocPaths = findRelatedDocs(context.nodes[i], context.missingAttachmentsList);
         if (relatedDocPaths.length > 0)
         {
             for(var j = 0; j < relatedDocPaths.length; j++)
@@ -319,19 +323,30 @@ function resolveAttachments(context, callback) {
                     }
                 );
 
+                newNodes.push({
+                    "_type": "n:node",
+                    "_alias": alias,
+                    "importSource": context.nodes[0]["importSource"],
+                    "imported": true,
+                    "title": path.basename(relatedDocPaths[j]),
+                    "_filePath": path.join("Article Documents", relatedDocPaths[j])
+                });
+                
                 context.attachments.push({
                     "_doc": alias,
                     "attachmentId": "default",
-                    "path": path.join("Article Documents", relatedDocPaths[j])
+                    "path": path.resolve(path.join(attachmentPath, relatedDocPaths[j]))
                 });
             }
         }
     }
 
+    context.nodes = context.nodes.concat(newNodes);
+
     callback(null, context);
 }
 
-function findRelatedDocs(node, attachmentPath) {
+function findRelatedDocs(node, missingAttachmentsList) {
     var relatedDocs = [];
 
     if (node.relatedUrl && node.relatedUrl["pdf-urls"] && node.relatedUrl["pdf-urls"].url)
@@ -340,14 +355,6 @@ function findRelatedDocs(node, attachmentPath) {
         if (!url) return;
 
         var urls = [];
-        // if (url.indexOf(",") > -1)
-        // {
-        //     urls = url.split(",");
-        // }
-        // else
-        // {
-        //     urls.push(url);
-        // }
 
         if (Gitana.isArray(url))
         {
@@ -370,10 +377,14 @@ function findRelatedDocs(node, attachmentPath) {
             }
 
             // console.log("thisUrl " + thisUrl);
-            var filePath = path.resolve(path.join(attachmentPath, thisUrl));
-            if (fs.existsSync(filePath))
+            var filePath = thisUrl;
+            if (fs.existsSync(path.resolve(path.join(attachmentPath, thisUrl))))
             {
                 relatedDocs.push(filePath);
+            }
+            else
+            {
+                missingAttachmentsList.push(thisUrl);
             }
         }
     }
@@ -400,6 +411,23 @@ function writeNodesToPackage(context, callback) {
     context.writeStream.end();
 
     console.log("write stream done");
+    callback(null, context);
+}
+
+function writeMissingAttachmentsReport(context, callback) {
+    context.writeStream = fs.createWriteStream("build/missingAttachmentsList.json", {
+        flags: 'w',
+        defaultEncoding: 'utf8',
+        fd: null,
+        mode: 0o666,
+        autoClose: true
+    });
+
+    context.writeStream.write(JSON.stringify(context.missingAttachmentsList, null, 2));
+
+    context.writeStream.end();
+
+    console.log("write report done");
     callback(null, context);
 }
 
@@ -682,30 +710,7 @@ function prepareXmlNodes(data, xmlFilePath, cmsPath, attachmentPath) {
             "volume": nestedKey(data[i], "volume.style._"),
             "notes": nestedKey(data[i], "notes.style._"),
             "accessionNum": nestedKey(data[i], "accession-num.style._")
-            
         });
-
-        // if (node.url)
-        // {
-        //     var idx = node.url.indexOf("internal-pdf://");
-        //     if (idx > -1)
-        //     {
-        //         idx += 15;
-        //         var localPath = path.join(attachmentPath, node.url.substring(idx));
-        //         node.attachments = [
-        //             {
-        //                 "path": localPath,
-        //                 "title": path
-        //             }
-        //         ]
-                
-        //     }
-        //     var url = node.url.substring()
-        //     attachmentId.substring(0, attachmentId.indexOf(".")
-        //     node.attachmentPath = path.join(attachmentPath, node.url);
-        // }
-
-        // addKeysToNode(node, data[i]);
 
         // calculate path to store within Cloud CMS
         if (node.title) {
@@ -726,8 +731,6 @@ function prepareXmlNodes(data, xmlFilePath, cmsPath, attachmentPath) {
             }
         }
 
-        // console.log("adding node: " + JSON.stringify(node));
-        // console.log("adding node: " + JSON.stringify(node.id || node.title));
         nodes.push(node);
     }
 
