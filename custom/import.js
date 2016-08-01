@@ -180,7 +180,7 @@ else if (xmlFolderPath && importType)
                 cmsFolderPath = path.join(cmsPath, xmlFilePaths[i].replace(".xml", ""));
             }
 
-            nodes.push(prepareXmlNodes(data, importFilePath, cmsFolderPath, attachmentPath));
+            nodes = nodes.concat(prepareXmlNodes(data, importFilePath, cmsFolderPath, attachmentPath));
 
             // console.log(JSON.stringify(nodes));
             if (nodes.length==0)
@@ -395,13 +395,11 @@ function writeNodesToPackage(context, callback) {
         "attachments": context.attachments
     }
 
-    for(var i = 0; i < context.nodes.length; i++)
-    {
-        context.writeStream.write(JSON.stringify(packageJSON));
-    }
+    context.writeStream.write(JSON.stringify(packageJSON, null, 2));
 
     context.writeStream.end();
 
+    console.log("write stream done");
     callback(null, context);
 }
 
