@@ -1,0 +1,164 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+		{
+			"name": "Show Help",
+			"type": "node",
+			"request": "launch",
+			"program": "${workspaceRoot}/custom/import.js",
+			"stopOnEntry": false,
+			"args": [
+				"-h"
+			],
+			"cwd": "${workspaceRoot}/custom",
+			"preLaunchTask": null,
+			"runtimeExecutable": null,
+			"runtimeArgs": [
+				"--nolazy"
+			],
+			"env": {
+				"NODE_ENV": "development"
+			},
+			"externalConsole": false,
+			"sourceMaps": false,
+			"outDir": null,
+			"smartStep": true
+		},
+		{
+			"name": "List Types",
+			"type": "node",
+			"request": "launch",
+			"program": "${workspaceRoot}/custom/import.js",
+			"stopOnEntry": false,
+			"args": [
+				"-l"
+			],
+			"cwd": "${workspaceRoot}/custom",
+			"preLaunchTask": null,
+			"runtimeExecutable": null,
+			"runtimeArgs": [
+				"--nolazy"
+			],
+			"env": {
+				"NODE_ENV": "development"
+			},
+			"externalConsole": false,
+			"sourceMaps": false,
+			"outDir": null,
+			"smartStep": true
+		},
+		{
+			"name": "Import XML Folder to a Package",
+			"type": "node",
+			"request": "launch",
+			"program": "${workspaceRoot}/custom/import.js",
+			"stopOnEntry": false,
+			"args": [
+				"-t", "schn:article", 
+				"-f", "./docs/import/CloudCMS database",
+				"-n", "./docs/import/attachments/unzipped",
+				"-m", "/articles",
+				"-k", "./build"
+			],
+			"cwd": "${workspaceRoot}/custom",
+			"preLaunchTask": null,
+			"runtimeExecutable": null,
+			"runtimeArgs": [
+				"--nolazy"
+			],
+			"env": {
+				"NODE_ENV": "development"
+			},
+			"externalConsole": false,
+			"sourceMaps": false,
+			"outDir": null,
+			"smartStep": true
+		},
+		{
+			"name": "Import XML Folder",
+			"type": "node",
+			"request": "launch",
+			"program": "${workspaceRoot}/custom/import.js",
+			"stopOnEntry": false,
+			"args": [
+				"-t", "schn:article", 
+				"-f", "./docs/import/CloudCMS database",
+				"-m", "/articles",
+				"-d",
+				"-s"
+			],
+			"cwd": "${workspaceRoot}/custom",
+			"preLaunchTask": null,
+			"runtimeExecutable": null,
+			"runtimeArgs": [
+				"--nolazy"
+			],
+			"env": {
+				"NODE_ENV": "development"
+			},
+			"externalConsole": false,
+			"sourceMaps": false,
+			"outDir": null,
+			"smartStep": true
+		},
+		{
+			"name": "Import XML",
+			"type": "node",
+			"request": "launch",
+			"program": "${workspaceRoot}/custom/import.js",
+			"stopOnEntry": false,
+			"args": [
+				"-t", "schn:article", 
+				"-x", "./docs/import/EndNote export.sample.xml"
+			],
+			"cwd": "${workspaceRoot}/custom",
+			"preLaunchTask": null,
+			"runtimeExecutable": null,
+			"runtimeArgs": [
+				"--nolazy"
+			],
+			"env": {
+				"NODE_ENV": "development"
+			},
+			"externalConsole": false,
+			"sourceMaps": false,
+			"outDir": null,
+			"smartStep": true
+		},
+		{
+			"name": "Import Type Definition",
+			"type": "node",
+			"request": "launch",
+			"program": "${workspaceRoot}/custom/import.js",
+			"stopOnEntry": false,
+			"args": [
+				"-t", "schn:article"
+			],
+			"cwd": "${workspaceRoot}/custom",
+			"preLaunchTask": null,
+			"runtimeExecutable": null,
+			"runtimeArgs": [
+				"--nolazy"
+			],
+			"env": {
+				"NODE_ENV": "development"
+			},
+			"externalConsole": false,
+			"sourceMaps": false,
+			"outDir": null,
+			"smartStep": true
+		},
+		{
+			"name": "Attach",
+			"type": "node",
+			"request": "attach",
+			"port": 5858,
+			"address": "localhost",
+			"restart": false,
+			"sourceMaps": false,
+			"outDir": null,
+			"localRoot": "${workspaceRoot}",
+			"remoteRoot": null
+		}
+    ]
+}
