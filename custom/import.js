@@ -323,13 +323,18 @@ function resolveAttachments(context, callback) {
                     }
                 );
 
+                // var fileName = makeFileName(relatedDocPaths[j]);
                 newNodes.push({
                     "_type": "n:node",
                     "_alias": alias,
+                    // "_qname": "schn:" + fileName,
                     "importSource": context.nodes[0]["importSource"],
                     "imported": true,
                     "title": path.basename(relatedDocPaths[j]),
-                    "_filePath": path.join("Article Documents", relatedDocPaths[j])
+                    "_parentFolderPath": path.dirname(path.join("Article Documents", relatedDocPaths[j])),
+                    "_filename": makeFileName(path.basename(relatedDocPaths[j]))
+
+                    // "_filePath": path.join("Article Documents", relatedDocPaths[j])
                 });
                 
                 context.attachments.push({
@@ -344,6 +349,10 @@ function resolveAttachments(context, callback) {
     context.nodes = context.nodes.concat(newNodes);
 
     callback(null, context);
+}
+
+function makeFileName(filePath) {
+    return filePath;
 }
 
 function findRelatedDocs(node, missingAttachmentsList) {
@@ -716,7 +725,9 @@ function prepareXmlNodes(data, xmlFilePath, cmsPath, attachmentPath) {
         if (node.title) {
             // if cmsPath is defined then store in a folder structure within Cloud CMS
             if (cmsPath) {
-                node._filePath = path.join(cmsPath, node.title)
+                // node._filePath = path.join(cmsPath, node.title)
+                node._parentFolderPath = cmsPath;
+                node._filename = makeFileName(node.title);
             }
         }
         else
