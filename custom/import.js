@@ -271,13 +271,35 @@ else
 }
 
 function writePackage(nodes, packagePath, attachmentPath) {
+    var missingAttachmentList = [];
+    if (fs.existsSync("./build/missingAttachmentsList.json"))
+    {
+        missingAttachmentList = require("./build/missingAttachmentsList.json");
+    }
+
+    if (missingAttachmentList && missingAttachmentList.attachmentList)
+    {
+        missingAttachmentList = missingAttachmentList.attachmentList || [];
+    }
+
+    var attachmentList = [];
+    if (fs.existsSync("./build/attachmentsList.json"))
+    {
+        attachmentList = require("./build/attachmentsList.json");
+    }
+
+    if (attachmentList && attachmentList.attachmentList)
+    {
+        attachmentList = attachmentList.attachmentList || {};
+    }
 
     var context = {
         nodes: nodes,
         attachments: [],
         attachmentPath: attachmentPath,
         packagePath: path.join(packagePath, "imports.json"),
-        missingAttachmentsList: []
+        missingAttachmentsList: missingAttachmentList,
+        attachmentsList: attachmentList || {}
     }
 
     console.log("Writing package to " + context.packagePath);
@@ -285,7 +307,8 @@ function writePackage(nodes, packagePath, attachmentPath) {
     async.waterfall([
         async.apply(async.ensureAsync(resolveAttachments), context),
         async.ensureAsync(writeNodesToPackage),
-        async.ensureAsync(writeMissingAttachmentsReport)
+        async.ensureAsync(writeMissingAttachmentsReport),
+        async.ensureAsync(writeAttachmentsReport)
     ], function (err, context) {
         if (err)
         {
@@ -313,7 +336,36 @@ function resolveAttachments(context, callback) {
         {
             for(var j = 0; j < relatedDocPaths.length; j++)
             {
-                var alias = "alias_" + aliasCounter++;
+                var alias;
+                if (context.attachmentsList[relatedDocPaths[j]])
+                {
+                    alias = context.attachmentsList[relatedDocPaths[j]];
+                }
+                else
+                {
+                    alias = "alias_" + aliasCounter++;
+                    context.attachmentsList[relatedDocPaths[j]] = alias;
+
+                    // var fileName = makeFileName(relatedDocPaths[j]);
+                    newNodes.push({
+                        "_type": "n:node",
+                        "_alias": alias,
+                        // "_qname": "schn:" + fileName,
+                        "importSource": context.nodes[0]["importSource"],
+                        "imported": true,
+                        "title": path.basename(relatedDocPaths[j]),
+                        "_parentFolderPath": path.dirname(path.join("Article Documents", relatedDocPaths[j])),
+                        "_filename": makeFileName(path.basename(relatedDocPaths[j]))
+
+                        // "_filePath": path.join("Article Documents", relatedDocPaths[j])
+                    });
+                    
+                    context.attachments.push({
+                        "_doc": alias,
+                        "attachmentId": "default",
+                        "path": path.resolve(path.join(attachmentPath, relatedDocPaths[j]))
+                    });
+                }
 
                 context.nodes[i]["relatedDoc"].push(
                     {
@@ -322,26 +374,6 @@ function resolveAttachments(context, callback) {
                         }
                     }
                 );
-
-                // var fileName = makeFileName(relatedDocPaths[j]);
-                newNodes.push({
-                    "_type": "n:node",
-                    "_alias": alias,
-                    // "_qname": "schn:" + fileName,
-                    "importSource": context.nodes[0]["importSource"],
-                    "imported": true,
-                    "title": path.basename(relatedDocPaths[j]),
-                    "_parentFolderPath": path.dirname(path.join("Article Documents", relatedDocPaths[j])),
-                    "_filename": makeFileName(path.basename(relatedDocPaths[j]))
-
-                    // "_filePath": path.join("Article Documents", relatedDocPaths[j])
-                });
-                
-                context.attachments.push({
-                    "_doc": alias,
-                    "attachmentId": "default",
-                    "path": path.resolve(path.join(attachmentPath, relatedDocPaths[j]))
-                });
             }
         }
     }
@@ -432,11 +464,28 @@ function writeMissingAttachmentsReport(context, callback) {
         autoClose: true
     });
 
-    context.writeStream.write(JSON.stringify(context.missingAttachmentsList, null, 2));
+    context.writeStream.write(JSON.stringify({"attachmentList": context.missingAttachmentsList}, null, 2));
 
     context.writeStream.end();
 
-    console.log("write report done");
+    console.log("write missing attachments report done");
+    callback(null, context);
+}
+
+function writeAttachmentsReport(context, callback) {
+    context.writeStream = fs.createWriteStream("build/attachmentsList.json", {
+        flags: 'w',
+        defaultEncoding: 'utf8',
+        fd: null,
+        mode: 0o666,
+        autoClose: true
+    });
+
+    context.writeStream.write(JSON.stringify({"attachmentList": context.attachmentsList||{}}, null, 2));
+
+    context.writeStream.end();
+
+    console.log("write attachments report done");
     callback(null, context);
 }
 
