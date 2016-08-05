@@ -15,6 +15,7 @@ var TYPES_PATH = "./docs/types";
 var TYPE_QNAME__CATEGORY = "schn:category";
 
 var aliasCounter = 0;
+var fileNames = {};
 
 // debug only when using charles proxy ssl proxy when intercepting cloudcms api calls:
 if (process.env.NODE_ENV !== "production")
@@ -282,7 +283,7 @@ function writePackage(nodes, packagePath, attachmentPath) {
         missingAttachmentList = missingAttachmentList.attachmentList || [];
     }
 
-    var attachmentList = [];
+    var attachmentList = {};
     if (fs.existsSync("./build/attachmentsList.json"))
     {
         attachmentList = require("./build/attachmentsList.json");
@@ -355,7 +356,7 @@ function resolveAttachments(context, callback) {
                         "imported": true,
                         "title": path.basename(relatedDocPaths[j]),
                         "_parentFolderPath": path.dirname(path.join("Article Documents", relatedDocPaths[j])),
-                        "_filename": makeFileName(path.basename(relatedDocPaths[j]))
+                        "_filename": path.basename(relatedDocPaths[j])
 
                         // "_filePath": path.join("Article Documents", relatedDocPaths[j])
                     });
@@ -383,8 +384,19 @@ function resolveAttachments(context, callback) {
     callback(null, context);
 }
 
-function makeFileName(filePath) {
-    return filePath;
+function makeFileName(fileName) {
+    if (fileNames[fileName])
+    {
+        console.log("*duplicate file name: " + fileName);
+        var i = 1;
+        while (fileNames[fileName])
+        {
+            fileName = fileName + "_" + i++;
+        }
+    }
+    fileNames[fileName] = 1;
+
+    return fileName;
 }
 
 function findRelatedDocs(node, missingAttachmentsList) {
@@ -737,13 +749,23 @@ function prepareXmlNodes(data, xmlFilePath, cmsPath, attachmentPath) {
             title = nestedKey(data[i], "titles.title.style._") || nestedKey(data[i], "titles.title.style");
         }
         
-        var secondaryTitle = nestedKey(data[i], "titles.secondary-title.style._") || nestedKey(data[i], "titles.secondary-title.style");
+        var secondaryTitle = "";
+        if (data[i].titles["secondary-title"])
+        {
+            secondaryTitle = nestedKey(data[i], "titles.secondary-title.style._") || nestedKey(data[i], "titles.secondary-title.style");
+        }
+        
+        var altTitle = "";
+        if (data[i].titles["alt-title"])
+        {
+            altTitle = nestedKey(data[i], "titles.alt-title.style._") || nestedKey(data[i], "titles.alt-title.style");
+        }
 
         var node = newArticleNode(importTypeName, {
             "importSource": xmlFilePath,
             "title": title || secondaryTitle,
             "secondaryTitle": secondaryTitle,
-            "altTitle": nestedKey(data[i], "titles.alt-title.style._"),
+            "altTitle": altTitle,
             "abstract": nestedKey(data[i], "abstract.style._"),
             "year": nestedKey(data[i], "dates.year.style._"),
             "contributors": [
@@ -775,7 +797,7 @@ function prepareXmlNodes(data, xmlFilePath, cmsPath, attachmentPath) {
             // if cmsPath is defined then store in a folder structure within Cloud CMS
             if (cmsPath) {
                 // node._filePath = path.join(cmsPath, node.title)
-                node._parentFolderPath = cmsPath;
+                node._parentFolderPath = path.join(cmsPath, node.year || "Other");
                 node._filename = makeFileName(node.title);
             }
         }
