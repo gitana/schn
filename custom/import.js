@@ -10,6 +10,7 @@ var sanitizeHtml = require('sanitize-html');
 var md = require('to-markdown');
 var marked = require('marked');
 var util = require("./lib/util");
+var md5 = require('md5');
 
 var TYPES_PATH = "./docs/types";
 var TYPE_QNAME__CATEGORY = "schn:category";
@@ -347,18 +348,15 @@ function resolveAttachments(context, callback) {
                     alias = "alias_" + aliasCounter++;
                     context.attachmentsList[relatedDocPaths[j]] = alias;
 
-                    // var fileName = makeFileName(relatedDocPaths[j]);
                     newNodes.push({
                         "_type": "n:node",
                         "_alias": alias,
-                        // "_qname": "schn:" + fileName,
+                        "_qname": "schn_doc:" + alias,
                         "importSource": context.nodes[0]["importSource"],
                         "imported": true,
                         "title": path.basename(relatedDocPaths[j]),
-                        "_parentFolderPath": path.dirname(path.join("Article Documents", relatedDocPaths[j])),
+                        "_parentFolderPath": path.dirname(path.join("Article Documents", context.nodes[i].year || "Other")),
                         "_filename": path.basename(relatedDocPaths[j])
-
-                        // "_filePath": path.join("Article Documents", relatedDocPaths[j])
                     });
                     
                     context.attachments.push({
@@ -789,7 +787,8 @@ function prepareXmlNodes(data, xmlFilePath, cmsPath, attachmentPath) {
             "pages": nestedKey(data[i], "pages.style._"),
             "volume": nestedKey(data[i], "volume.style._"),
             "notes": nestedKey(data[i], "notes.style._"),
-            "accessionNum": nestedKey(data[i], "accession-num.style._")
+            "accessionNum": nestedKey(data[i], "accession-num.style._"),
+            "_qname": "schn_article:" + md5(data[i]["rec-number"] + xmlFilePath + title +  Math.floor(Math.random() * data.length))
         });
 
         // calculate path to store within Cloud CMS

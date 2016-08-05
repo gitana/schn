@@ -3,7 +3,7 @@
 # uninstall anything existing
 # we do this twice because some things don't resolve the first time
 # cloudcms uninstall
-# cloudcms uninstall
+cloudcms uninstall
 
 count=0
 rm custom/build/missingAttachmentsList.json
@@ -16,7 +16,7 @@ do
     echo "*******************************"
     count=`expr $count + 1`    
     cd custom
-    node ./import.js -t schn:article -f "../${dir}" -n ./docs/import/attachments/unzipped -m /articles -k ./build
+    node ./import.js -t schn:article -f "../${dir}" -n ./docs/import/attachments/unzipped -m /Articles -k ./build
 
     cd ..
     echo "*******************************"

@@ -15,7 +15,8 @@
     "sanitize-html": "*",
     "to-markdown": "*",
     "wrench": "*",
-    "xml2js": "*"
+    "xml2js": "*",
+    "md5": "*"
   },
   "optionalDependencies": {},
   "private": true
