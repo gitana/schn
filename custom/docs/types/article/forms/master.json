@@ -112,6 +112,11 @@
             "label": "Volume",
             "required": false
         },
+        "number": {
+            "type": "text",
+            "label": "Number",
+            "required": false
+        },
         "notes": {
             "type": "text",
             "label": "Notes",

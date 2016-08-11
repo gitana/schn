@@ -118,6 +118,11 @@
             "type": "string",
             "required": false
         },
+        "number": {
+            "title": "Number",
+            "type": "string",
+            "required": false
+        },
         "notes": {
             "title": "Notes",
             "type": "string",
