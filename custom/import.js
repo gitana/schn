@@ -368,9 +368,7 @@ function resolveAttachments(context, callback) {
 
                 context.nodes[i]["relatedDoc"].push(
                     {
-                        "relatedDoc": {
-                            "__related_node__": alias
-                        }
+                        "__related_node__": alias
                     }
                 );
             }
@@ -673,7 +671,28 @@ function addKeysToNode(node, data) {
     }
 }
 
-function nestedKey(data, propertyName) {
+function nestedKey(data, propertyName, defaultValue) {
+    var keys = propertyName.split(".");
+    var dataValue = data;
+    var value = defaultValue || "";
+    for(var i = 0; i < keys.length; i++)
+    {
+        var key = keys[i];
+        if (dataValue[key])
+        {
+            dataValue = dataValue[key];
+            value = dataValue;
+        }
+        else
+        {
+            return value
+        }
+    }
+
+    return value;
+}
+
+function _nestedKey(data, propertyName) {
     var keys = propertyName.split(".");
     var dataValue = data;
     var value = "";
@@ -698,6 +717,7 @@ function nestedArrayKey(data, propertyName, propertyName2) {
     var keys = propertyName.split(".");
     var dataValue = data;
     var value = "";
+    var resultArray = [];
     for(var i = 0; i < keys.length; i++)
     {
         var key = keys[i];
@@ -717,11 +737,15 @@ function nestedArrayKey(data, propertyName, propertyName2) {
     {
         for(var i = 0; i < value.length; i++)
         {
-            value[i] = nestedKey(value[i], propertyName2);
+            resultArray.push(nestedKey(value[i], propertyName2));
         }
     }
+    else
+    {
+        resultArray.push(nestedKey(value, propertyName2));
+    }
 
-    return value || [];
+    return resultArray || [];
 }
 
 function prepareXmlNodes(data, xmlFilePath, cmsPath, attachmentPath) {
@@ -729,9 +753,15 @@ function prepareXmlNodes(data, xmlFilePath, cmsPath, attachmentPath) {
 
     // console.log("data: \n" + JSON.stringify(data));
     data = data.xml.records.record;
+    if (!Gitana.isArray(data))
+    {
+        data = [data];
+    }
     
     for(var i = 0; i < data.length; i++) {
-        var title = nestedArrayKey(data[i], "titles.title.style", "_"); // special case for when title is an array
+        console.log("\n**\n" + JSON.stringify(data[i],null,2))
+        var title = data[i].titles.title._value;
+        // special case for when title is an array
         if (Gitana.isArray(title)) {
             if (title[0])
             {
@@ -742,21 +772,17 @@ function prepareXmlNodes(data, xmlFilePath, cmsPath, attachmentPath) {
                 title = title.join("");
             }
         }
-        else
-        {
-            title = nestedKey(data[i], "titles.title.style._") || nestedKey(data[i], "titles.title.style");
-        }
         
         var secondaryTitle = "";
         if (data[i].titles["secondary-title"])
         {
-            secondaryTitle = nestedKey(data[i], "titles.secondary-title.style._") || nestedKey(data[i], "titles.secondary-title.style");
+            secondaryTitle = data[i].titles["secondary-title"]._value;
         }
         
         var altTitle = "";
         if (data[i].titles["alt-title"])
         {
-            altTitle = nestedKey(data[i], "titles.alt-title.style._") || nestedKey(data[i], "titles.alt-title.style");
+            altTitle = data[i].titles["alt-title"]._value;
         }
 
         var node = newArticleNode(importTypeName, {
@@ -764,30 +790,32 @@ function prepareXmlNodes(data, xmlFilePath, cmsPath, attachmentPath) {
             "title": title || secondaryTitle,
             "secondaryTitle": secondaryTitle,
             "altTitle": altTitle,
-            "abstract": nestedKey(data[i], "abstract.style._"),
-            "year": nestedKey(data[i], "dates.year.style._"),
+            "abstract": nestedKey(data[i], "abstract._value", ""),
+            "year": nestedKey(data[i], "dates.year._value"),
             "contributors": [
                 {
-                    "authors": nestedArrayKey(data[i], "contributors.authors.author", "style._"),
-                    "tertiaryAuthors": nestedArrayKey(data[i], "contributors.tertiary-authors.author", "style._")
+                    "authors": nestedArrayKey(data[i], "contributors.authors.author", "_value"),
+                    "secondaryAuthors": nestedArrayKey(data[i], "contributors.secondary-authors.author", "_value"),
+                    "tertiaryAuthors": nestedArrayKey(data[i], "contributors.tertiary-authors.author", "_value")
                 }
             ],
-            "periodical": nestedKey(data[i], "periodical.full-title.style._"),
-            "altPeriodical": nestedKey(data[i], "alt-periodical.full-title.style._"),
-            "authAddress": nestedKey(data[i], "auth-address.style._"),
-            "electronicResourceNumber": nestedKey(data[i], "electronic-resource-num.year.style._"),
+            "periodical": nestedKey(data[i], "periodical.full-title._value"),
+            "altPeriodical": nestedKey(data[i], "alt-periodical.full-title._value"),
+            "authAddress": nestedKey(data[i], "auth-address._value"),
+            "electronicResourceNumber": nestedKey(data[i], "electronic-resource-num.year._value"),
             "recNumber": data[i]["rec-number"] || "",
-            "keywords": nestedArrayKey(data[i], "keywords.keyword", "style._"),
-            "publisher": nestedKey(data[i], "publisher.style._"),
-            "pubLocation": nestedKey(data[i], "pub-location.style._"),
+            "keywords": nestedArrayKey(data[i], "keywords.keyword", "_value"),
+            "publisher": nestedKey(data[i], "publisher._value"),
+            "pubLocation": nestedKey(data[i], "pub-location._value"),
             "url": nestedKey(data[i], "urls.pdf-urls.url"),
-            "relatedUrl": nestedKey(data[i], "urls.related-urls.url.style._"),
-            "workType": nestedKey(data[i], "work-type.style._"),
-            "isbn": nestedKey(data[i], "isbn.style._"),
-            "pages": nestedKey(data[i], "pages.style._"),
-            "volume": nestedKey(data[i], "volume.style._"),
-            "notes": nestedKey(data[i], "notes.style._"),
-            "accessionNum": nestedKey(data[i], "accession-num.style._"),
+            "relatedUrl": nestedKey(data[i], "urls.related-urls.url._value"),
+            "workType": nestedKey(data[i], "work-type._value"),
+            "isbn": nestedKey(data[i], "isbn._value"),
+            "pages": nestedKey(data[i], "pages._value"),
+            "volume": nestedKey(data[i], "volume._value"),
+            "number": nestedKey(data[i], "number._value"),
+            "notes": nestedKey(data[i], "notes._value"),
+            "accessionNum": nestedKey(data[i], "accession-num._value"),
             "_qname": "schn_article:" + md5(data[i]["rec-number"] + xmlFilePath + title +  Math.floor(Math.random() * data.length))
         });
 
@@ -802,7 +830,7 @@ function prepareXmlNodes(data, xmlFilePath, cmsPath, attachmentPath) {
         }
         else
         {
-            console.log("Warning. Node found with no title. It will be stored without a path: " + JSON.stringify(node));
+            console.log("Warning. Node found with no title. It will be stored without a path: " + JSON.stringify(node, null, 2));
         }
 
         // add optional properties define don command line
@@ -812,6 +840,7 @@ function prepareXmlNodes(data, xmlFilePath, cmsPath, attachmentPath) {
             }
         }
 
+        console.log("*\n" + JSON.stringify(node,null,2))
         nodes.push(node);
     }
 
