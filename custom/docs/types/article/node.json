@@ -11,8 +11,18 @@
             "type": "string",
             "required": true
         },
-        "author": {
-            "title": "Author",
+        "secondaryTitle": {
+            "title": "Secondary Title",
+            "type": "string",
+            "required": false
+        },
+        "altTitle": {
+            "title": "Alternate Title",
+            "type": "string",
+            "required": false
+        },
+        "abstract": {
+            "title": "Abstract",
             "type": "string",
             "required": false
         },
@@ -21,20 +31,112 @@
             "type": "string",
             "required": false
         },
-        "rating": {
-            "title": "Year",
+        "contributors": {
+            "title": "Contributors",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "authors": {
+                        "title": "Authors",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "secondaryAuthors": {
+                        "title": "Secondary Authors",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "tertiaryAuthors": {
+                        "title": "Tertiary Authors",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "periodical": {
+            "title": "Periodical",
             "type": "string",
             "required": false
+        },
+        "alternatePeriodical": {
+            "title": "Alternate Periodical",
+            "type": "string",
+            "required": false
+        },
+        "authAddress": {
+            "title": "Auth. Address",
+            "type": "string",
+            "required": false
+        },
+        "electronicResourceNumber": {
+            "title": "Electronic Resource Number",
+            "type": "string",
+            "required": false
+        },
+        "keywords": {
+            "title": "Keywords",
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
         },
         "publisher": {
             "title": "Publisher",
             "type": "string",
             "required": false
         },
-        "placePublished": {
-            "title": "Place Published",
+        "pubLocation": {
+            "title": "Publish Location",
             "type": "string",
             "required": false
+        },
+        "workType": {
+            "title": "Work Type",
+            "type": "string",
+            "required": false
+        },
+        "isbn": {
+            "title": "ISBN",
+            "type": "string",
+            "required": false
+        },
+        "pages": {
+            "title": "Pages",
+            "type": "string",
+            "required": false
+        },
+        "volume": {
+            "title": "Volume",
+            "type": "string",
+            "required": false
+        },
+        "notes": {
+            "title": "Notes",
+            "type": "string",
+            "required": false
+        },
+        "accessionNum": {
+            "title": "Accession Number",
+            "type": "string",
+            "required": false
+        },
+        "relatedDoc": {
+            "title": "Related Document",
+            "type": "array",
+            "items": {
+                "type": "object"
+            },
+            "_relator": {
+                "nodeType": "n:node"
+            }
         }
     }
 }
