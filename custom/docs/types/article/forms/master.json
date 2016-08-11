@@ -6,6 +6,128 @@
             "type": "text",
             "label": "Title",
             "required": true
+        },
+        "secondaryTitle": {
+            "type": "text",
+            "label": "Secondary Title",
+            "required": false
+        },
+        "altTitle": {
+            "type": "text",
+            "label": "Alternate Title",
+            "required": false
+        },
+        "abstract": {
+            "type": "textarea",
+            "label": "Abstract",
+            "required": false
+        },
+        "year": {
+            "type": "text",
+            "label": "Year",
+            "required": false
+        },
+        "contributors": {
+            "type": "array",
+            "toolbarSticky": true,
+            "items": {
+                "type": "object",
+                "fields": {
+                    "authors": {
+                        "toolbarSticky": true,
+                        "items": {
+                            "type": "text"
+                        }
+                    },
+                    "secondaryAuthors": {
+                        "toolbarSticky": true,
+                        "items": {
+                            "type": "text"
+                        }
+                    },
+                    "tertiaryAuthors": {
+                        "toolbarSticky": true,
+                        "items": {
+                            "type": "text"
+                        }
+                    }
+                }
+            }
+        },
+        "periodical": {
+            "type": "text",
+            "label": "Periodical",
+            "required": false
+        },
+        "alternatePeriodical": {
+            "type": "text",
+            "label": "Alternate Periodical",
+            "required": false
+        },
+        "authAddress": {
+            "type": "text",
+            "label": "Auth. Address",
+            "required": false
+        },
+        "electronicResourceNumber": {
+            "type": "text",
+            "label": "Electronic Resource Number",
+            "required": false
+        },
+        "keywords": {
+            "type": "array",
+            "label": "Keywords",
+            "required": false,
+            "items": {
+                "type": "text"
+            }
+        },
+        "publisher": {
+            "type": "text",
+            "label": "Publisher",
+            "required": false
+        },
+        "pubLocation": {
+            "type": "text",
+            "label": "Publisher",
+            "required": false
+        },
+        "workType": {
+            "type": "text",
+            "label": "Work Type",
+            "required": false
+        },
+        "isbn": {
+            "type": "text",
+            "label": "ISBN",
+            "required": false
+        },
+        "pages": {
+            "type": "text",
+            "label": "Pages",
+            "required": false
+        },
+        "volume": {
+            "type": "text",
+            "label": "Volume",
+            "required": false
+        },
+        "notes": {
+            "type": "text",
+            "label": "Notes",
+            "required": false
+        },
+        "accessionNum": {
+            "type": "text",
+            "label": "Accession Number",
+            "required": false
+        },
+        "relatedDoc": {
+            "type": "related-content",
+            "label": "Related Document",
+            "required": false,
+            "uploadPath": "/Article Documents",
+            "maxNumberOfFiles": 1
         }
     },
     "_form_key": "master"
