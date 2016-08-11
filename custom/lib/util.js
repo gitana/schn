@@ -171,12 +171,22 @@ module.exports = function() {
         var xml2jsParser = new xml2js.Parser({
             "trim": true,
             "normalize": true,
-            "ignoreAttrs": false,
+            "ignoreAttrs": true,
             "explicitArray": false,
             "mergeAttrs": true,
             "preserveChildrenOrder": true,
             "normalizeTags": true,
-            "async": false
+            "async": false,
+            "tagNameProcessors": [
+                function (name){
+                    if (name === "style")
+                    {
+                        name = "_value";
+                    }
+
+                    return name;
+                }
+            ]
         });
 
         // fs.readFile(inputXMLfilePath, 'utf8', function(err, data) {
