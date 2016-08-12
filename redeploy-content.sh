@@ -8,7 +8,8 @@ cloudcms uninstall
 count=0
 rm custom/build/missingAttachmentsList.json
 rm custom/build/attachmentsList.json
-for dir in custom/docs/import/CloudCMS\ database\ 10*/
+#for dir in custom/docs/import/CloudCMS\ database\ 10*/
+for dir in custom/docs/import/CloudCMS\ database*/
 do
     dir=${dir%*/}
     echo "*******************************"
