@@ -785,16 +785,32 @@ function prepareXmlNodes(data, xmlFilePath, cmsPath, attachmentPath) {
             altTitle = data[i].titles["alt-title"]._value;
         }
 
+        var abstract = nestedKey(data[i], "abstract._value", "");
+        if (Gitana.isArray(abstract))
+        {
+            abstract = abstract.join("");
+        }
+
+        var authors = nestedArrayKey(data[i], "contributors.authors.author", "_value");
+        for(var j = 0; j++; j < authors.length)
+        {
+            if (Gitana.isArray(authors[j]))
+            {
+                authors[j] = authors[j].join("");
+            }
+            
+        }
+
         var node = newArticleNode(importTypeName, {
             "importSource": xmlFilePath,
             "title": title || secondaryTitle,
             "secondaryTitle": secondaryTitle,
             "altTitle": altTitle,
-            "abstract": nestedKey(data[i], "abstract._value", ""),
+            "abstract": abstract,
             "year": nestedKey(data[i], "dates.year._value"),
             "contributors": [
                 {
-                    "authors": nestedArrayKey(data[i], "contributors.authors.author", "_value"),
+                    "authors": authors,
                     "secondaryAuthors": nestedArrayKey(data[i], "contributors.secondary-authors.author", "_value"),
                     "tertiaryAuthors": nestedArrayKey(data[i], "contributors.tertiary-authors.author", "_value")
                 }
@@ -802,7 +818,7 @@ function prepareXmlNodes(data, xmlFilePath, cmsPath, attachmentPath) {
             "periodical": nestedKey(data[i], "periodical.full-title._value"),
             "altPeriodical": nestedKey(data[i], "alt-periodical.full-title._value"),
             "authAddress": nestedKey(data[i], "auth-address._value"),
-            "electronicResourceNumber": nestedKey(data[i], "electronic-resource-num.year._value"),
+            "electronicResourceNumber": nestedKey(data[i], "electronic-resource-num._value"),
             "recNumber": data[i]["rec-number"] || "",
             "keywords": nestedArrayKey(data[i], "keywords.keyword", "_value"),
             "publisher": nestedKey(data[i], "publisher._value"),
