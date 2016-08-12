@@ -131,8 +131,7 @@
             "type": "related-content",
             "label": "Related Document",
             "required": false,
-            "uploadPath": "/Article Documents",
-            "maxNumberOfFiles": 1
+            "uploadPath": "/Article Documents"
         }
     },
     "_form_key": "master"
