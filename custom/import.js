@@ -398,9 +398,11 @@ function makeFileName(fileName) {
 function findRelatedDocs(node, missingAttachmentsList) {
     var relatedDocs = [];
 
-    if (node.relatedUrl && node.relatedUrl["pdf-urls"] && node.relatedUrl["pdf-urls"].url)
+    // if (node.relatedUrl && node.relatedUrl["pdf-urls"] && node.relatedUrl["pdf-urls"].url)
+    if (node.url)
     {
-        var url = node.relatedUrl["pdf-urls"].url || "";
+        // var url = node.relatedUrl["pdf-urls"].url || "";
+        var url = node.url || "";
         if (!url) return;
 
         var urls = [];
