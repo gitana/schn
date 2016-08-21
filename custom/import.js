@@ -90,7 +90,7 @@ var homeDirectory = function()
 
 var rootCredentials = JSON.parse("" + fs.readFileSync(path.join(homeDirectory(), ".cloudcms", "credentials.json")));
 
-var gitanaConfig = JSON.parse("" + fs.readFileSync("./gitana.json"));
+var gitanaConfig = JSON.parse("" + fs.readFileSync("../gitana.json"));
 gitanaConfig.username = rootCredentials.username;
 gitanaConfig.password = rootCredentials.password;
 
