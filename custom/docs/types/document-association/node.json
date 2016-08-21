@@ -1,0 +1,9 @@
+{
+    "title": "Document Association",
+    "description": "Associates an article with a document",
+    "_qname": "schn:document-association",
+    "_type": "d:association",
+    "type": "object",
+    "_parent": "a:linked",
+    "properties": {}
+}
