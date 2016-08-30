@@ -180,6 +180,7 @@ else if (xmlFolderPath && importType)
             var cmsFolderPath = xmlFilePaths[i];
             if (cmsPath) {
                 cmsFolderPath = path.join(cmsPath, xmlFilePaths[i].replace(".xml", ""));
+                cmsFolderPath = cmsFolderPath.replace(/\.\d+$/, "");
             }
 
             nodes = nodes.concat(prepareXmlNodes(data, importFilePath, cmsFolderPath, attachmentPath));
@@ -355,7 +356,8 @@ function resolveAttachments(context, callback) {
                         "importSource": context.nodes[0]["importSource"],
                         "imported": true,
                         "title": path.basename(relatedDocPaths[j]),
-                        "_parentFolderPath": path.dirname(path.join("Article Documents", context.nodes[i].year || "Other")),
+                        // "_parentFolderPath": path.dirname(path.join("Article Documents", context.nodes[i].year || "Other")),
+                        "_parentFolderPath": context.nodes[i]._parentFolderPath.replace(/\/?Articles\//, "Article Documents/"),
                         "_filename": path.basename(relatedDocPaths[j])
                     });
                     
@@ -416,7 +418,16 @@ function findRelatedDocs(node, missingAttachmentsList) {
         }
         else
         {
-            urls = url.split("://");
+            console.log("urls " + typeof urls);
+            try {
+                urls = url.split("://");
+            }
+            catch(e)
+            {
+                console.log(e + "\nerror with url for this node " + e);
+                console.log(JSON.stringify(urls || {}));
+                urls = [];
+            }
         }
 
         for(var i = 0; i < urls.length; i++)
@@ -761,7 +772,7 @@ function prepareXmlNodes(data, xmlFilePath, cmsPath, attachmentPath) {
     }
     
     for(var i = 0; i < data.length; i++) {
-        console.log("\n**\n" + JSON.stringify(data[i],null,2))
+        // console.log("\n**\n" + JSON.stringify(data[i],null,2))
         var title = data[i].titles.title._value;
         // special case for when title is an array
         if (Gitana.isArray(title)) {
@@ -842,7 +853,8 @@ function prepareXmlNodes(data, xmlFilePath, cmsPath, attachmentPath) {
             // if cmsPath is defined then store in a folder structure within Cloud CMS
             if (cmsPath) {
                 // node._filePath = path.join(cmsPath, node.title)
-                node._parentFolderPath = path.join(cmsPath, node.year || "Other");
+                // node._parentFolderPath = path.join(cmsPath, node.year || "Other");
+                node._parentFolderPath = cmsPath;
                 node._filename = makeFileName(node.title);
             }
         }
@@ -858,7 +870,7 @@ function prepareXmlNodes(data, xmlFilePath, cmsPath, attachmentPath) {
             }
         }
 
-        console.log("*\n" + JSON.stringify(node,null,2))
+        // console.log("*\n" + JSON.stringify(node,null,2))
         nodes.push(node);
     }
 
