@@ -18,6 +18,17 @@ var TYPE_QNAME__CATEGORY = "schn:category";
 var aliasCounter = 0;
 var fileNames = {};
 
+if (fs.existsSync("./build/fileNames.json"))
+{
+    fileNames = require("./build/fileNames.json");
+}
+
+if (fileNames && fileNames.fileNames)
+{
+    fileNames = fileNames.fileNames || {};
+}
+
+
 // debug only when using charles proxy ssl proxy when intercepting cloudcms api calls:
 if (process.env.NODE_ENV !== "production")
 {
@@ -311,7 +322,8 @@ function writePackage(nodes, packagePath, attachmentPath) {
         async.apply(async.ensureAsync(resolveAttachments), context),
         async.ensureAsync(writeNodesToPackage),
         async.ensureAsync(writeMissingAttachmentsReport),
-        async.ensureAsync(writeAttachmentsReport)
+        async.ensureAsync(writeAttachmentsReport),
+        async.ensureAsync(writeFileNamest)
     ], function (err, context) {
         if (err)
         {
@@ -333,46 +345,19 @@ function resolveAttachments(context, callback) {
 
     for(var i = 0; i < context.nodes.length; i++)
     {
-        context.nodes[i]["relatedDoc"] = [];
+        var alias = "alias_" + i;
+        context.nodes[i]["_alias"] = alias;
         var relatedDocPaths = findRelatedDocs(context.nodes[i], context.missingAttachmentsList);
         if (relatedDocPaths.length > 0)
         {
             for(var j = 0; j < relatedDocPaths.length; j++)
             {
-                var alias;
-                if (context.attachmentsList[relatedDocPaths[j]])
-                {
-                    alias = context.attachmentsList[relatedDocPaths[j]];
-                }
-                else
-                {
-                    alias = "alias_" + aliasCounter++;
-                    context.attachmentsList[relatedDocPaths[j]] = alias;
-
-                    newNodes.push({
-                        "_type": "n:node",
-                        "_alias": alias,
-                        "_qname": "schn_doc:" + alias,
-                        "importSource": context.nodes[0]["importSource"],
-                        "imported": true,
-                        "title": path.basename(relatedDocPaths[j]),
-                        // "_parentFolderPath": path.dirname(path.join("Article Documents", context.nodes[i].year || "Other")),
-                        "_parentFolderPath": context.nodes[i]._parentFolderPath.replace(/\/?Articles\//, "Article Documents/"),
-                        "_filename": path.basename(relatedDocPaths[j])
-                    });
-                    
-                    context.attachments.push({
-                        "_doc": alias,
-                        "attachmentId": "default",
-                        "path": path.resolve(path.join(attachmentPath, relatedDocPaths[j]))
-                    });
-                }
-
-                context.nodes[i]["relatedDoc"].push(
-                    {
-                        "__related_node__": alias
-                    }
-                );
+                var attachmentId = (j ? "default" + j : "default");
+                context.attachments.push({
+                    "_doc": alias,
+                    "attachmentId": attachmentId,
+                    "path": path.resolve(path.join(attachmentPath, relatedDocPaths[j]))
+                });
             }
         }
     }
@@ -387,10 +372,13 @@ function makeFileName(fileName) {
     {
         console.log("*duplicate file name: " + fileName);
         var i = 1;
-        while (fileNames[fileName])
+        var tFilename = fileName;
+        while (fileNames[tFilename])
         {
-            fileName = fileName + "_" + i++;
+            tFilename = fileName + "_" + i++;
         }
+        fileName = tFilename;
+        console.log("** replacement file name: " + fileName);
     }
     fileNames[fileName] = 1;
 
@@ -507,6 +495,23 @@ function writeAttachmentsReport(context, callback) {
     context.writeStream.end();
 
     console.log("write attachments report done");
+    callback(null, context);
+}
+
+function writeFileNamest(context, callback) {
+    context.writeStream = fs.createWriteStream("build/fileNames.json", {
+        flags: 'w',
+        defaultEncoding: 'utf8',
+        fd: null,
+        mode: 0o666,
+        autoClose: true
+    });
+
+    context.writeStream.write(JSON.stringify({"fileNames": fileNames||{}}, null, 2));
+
+    context.writeStream.end();
+
+    console.log("write fileNames report done");
     callback(null, context);
 }
 
@@ -855,7 +860,7 @@ function prepareXmlNodes(data, xmlFilePath, cmsPath, attachmentPath) {
                 // node._filePath = path.join(cmsPath, node.title)
                 // node._parentFolderPath = path.join(cmsPath, node.year || "Other");
                 node._parentFolderPath = cmsPath;
-                node._filename = makeFileName(node.title);
+                node.title = node._filename = makeFileName(node.title);
             }
         }
         else
