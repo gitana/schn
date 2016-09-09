@@ -1,0 +1,90 @@
+.modal.modal-login-splash
+{
+    background: rgb(255,255,255); /* Old browsers */
+    background: -moz-linear-gradient(-45deg, rgba(255,255,255,1) 0%, rgba(241,241,241,1) 50%, rgba(225,225,225,1) 51%, rgba(246,246,246,1) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, right bottom, color-stop(0%,rgba(255,255,255,1)), color-stop(50%,rgba(241,241,241,1)), color-stop(51%,rgba(225,225,225,1)), color-stop(100%,rgba(246,246,246,1))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(-45deg, rgba(255,255,255,1) 0%,rgba(241,241,241,1) 50%,rgba(225,225,225,1) 51%,rgba(246,246,246,1) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(-45deg, rgba(255,255,255,1) 0%,rgba(241,241,241,1) 50%,rgba(225,225,225,1) 51%,rgba(246,246,246,1) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(-45deg, rgba(255,255,255,1) 0%,rgba(241,241,241,1) 50%,rgba(225,225,225,1) 51%,rgba(246,246,246,1) 100%); /* IE10+ */
+    background: linear-gradient(135deg, rgba(255,255,255,1) 0%,rgba(241,241,241,1) 50%,rgba(225,225,225,1) 51%,rgba(246,246,246,1) 100%); /* W3C */
+
+}
+
+.overlay-content.login-splash .list-group
+{
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.overlay-content.login-splash .header
+{
+    margin-top: -15px;
+}
+
+.overlay-content.login-splash .header img
+{
+    max-width: 350px;
+}
+
+.overlay-content.login-splash .header p.info
+{
+    margin-top: 10px;
+    margin-bottom: 20px;
+    margin-right: 40px;
+    margin-left: 40px;
+    font-size: 16px;
+    color: #777;
+}
+
+.overlay-content.login-splash .header h2
+{
+    font-weight: 500;
+    font-size: 20px;
+    color: #369;
+    margin-bottom: 30px;
+}
+
+.overlay-content.login-splash .list-group-item:not(.active):hover
+{
+    background-color: #F7F7F7;
+}
+
+.overlay-content.login-splash .list-group-item:hover
+{
+    cursor: pointer;
+}
+
+.overlay-content.login-splash .list-group-item:not(.active) .media-body .list-group-item-heading
+{
+    font-weight: 400;
+    /*color: #369;*/
+    color: #333;
+}
+
+.overlay-content.login-splash .list-group-item .media-body
+{
+    text-align: left;
+}
+
+.overlay-content.login-splash .list-group-item:not(.active) .media-body .list-group-item-text
+{
+    /*color: #47B;*/
+    color: #777;
+}
+
+.overlay-content.login-splash .list-group-item .media .media-left
+{
+    min-width: 90px;
+}
+
+.overlay-content.login-splash .list-group-item .media .media-left .sample-project-icon
+{
+    font-size: 60px;
+}
+
+.overlay-content.login-splash .list-group-item:not(.active) .media .media-left .sample-project-icon
+{
+    /*color: #147;*/
+    color: #333;
+    opacity: 0.7;
+}
