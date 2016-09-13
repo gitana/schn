@@ -18,7 +18,7 @@ define(function(require) {
                     config.cancel = false;
                     config.close = true;
 
-                    OneTeam.showOverlay("login-splash", config, function (err) {
+                    OneTeam.showOverlay("schn-login-splash", config, function (err) {
                     });
                 }
             }

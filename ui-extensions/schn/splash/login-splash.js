@@ -6,7 +6,7 @@ define(function(require, exports, module) {
     var Ratchet = require("ratchet/web");
     var OneTeam = require("oneteam");
 
-    return Ratchet.GadgetRegistry.register("login-splash", Ratchet.Overlay.extend({
+    return Ratchet.GadgetRegistry.register("schn-login-splash", Ratchet.Overlay.extend({
 
         TEMPLATE: html,
 
