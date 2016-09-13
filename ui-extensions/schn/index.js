@@ -1,6 +1,6 @@
 define(function(require) {
 
-    require("./login-splash/login-splash.js");
+    require("./splash/login-splash");
 
     var $ = require("jquery");
     var OneTeam = require("oneteam");
