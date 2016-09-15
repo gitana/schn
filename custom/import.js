@@ -778,7 +778,12 @@ function prepareXmlNodes(data, xmlFilePath, cmsPath, attachmentPath) {
     
     for(var i = 0; i < data.length; i++) {
         // console.log("\n**\n" + JSON.stringify(data[i],null,2))
-        var title = data[i].titles.title._value;
+        var title = "";
+        if (data[i].titles && data[i].titles.title && data[i].titles.title._value)
+        {
+            title = data[i].titles.title._value;
+        }
+
         // special case for when title is an array
         if (Gitana.isArray(title)) {
             if (title[0])
@@ -796,11 +801,28 @@ function prepareXmlNodes(data, xmlFilePath, cmsPath, attachmentPath) {
         {
             secondaryTitle = data[i].titles["secondary-title"]._value;
         }
+
+        if (!title && secondaryTitle)
+        {
+            title = secondaryTitle;
+        }
         
         var altTitle = "";
         if (data[i].titles["alt-title"])
         {
             altTitle = data[i].titles["alt-title"]._value;
+        }
+
+        if (!title)
+        {
+            if (altTitle)
+            {
+                title = altTitle;
+            }
+            else
+            {
+                title = "Untitled";
+            }
         }
 
         var abstract = nestedKey(data[i], "abstract._value", "");
@@ -817,6 +839,12 @@ function prepareXmlNodes(data, xmlFilePath, cmsPath, attachmentPath) {
                 authors[j] = authors[j].join("");
             }
             
+        }
+
+        var notes = nestedKey(data[i], "notes._value");
+        if (Gitana.isArray(notes))
+        {
+            notes = notes.join(" ");
         }
 
         var node = newArticleNode(importTypeName, {
@@ -848,7 +876,7 @@ function prepareXmlNodes(data, xmlFilePath, cmsPath, attachmentPath) {
             "pages": nestedKey(data[i], "pages._value"),
             "volume": nestedKey(data[i], "volume._value"),
             "number": nestedKey(data[i], "number._value"),
-            "notes": nestedKey(data[i], "notes._value"),
+            "notes": notes,
             "accessionNum": nestedKey(data[i], "accession-num._value"),
             "_qname": "schn_article:" + md5(data[i]["rec-number"] + xmlFilePath + title +  Math.floor(Math.random() * data.length))
         });
