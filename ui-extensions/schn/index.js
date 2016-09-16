@@ -6,13 +6,18 @@ define(function(require) {
     var OneTeam = require("oneteam");
 
     $(document).on("dispatch", function(event, ratchet, completed) {
-
-        if (completed)
+        if (event.currentTarget.location.hash === "#/logout" && completed)
+        {
+            Ratchet.deleteCookie("schn-splash");
+        }
+        else if (event.currentTarget.location.hash === "#/" && completed)
         {
             if (!ratchet.isDetached())
             {
-                if (window.location.hash === "#/")
+                if (!Ratchet.readCookie("schn-splash"))
                 {
+                    Ratchet.writeCookie("schn-splash", "schn-splash", null, 0.5, null);
+
                     var config = {};
                     config.title = "Welcome to Cloud CMS";
                     config.cancel = false;
@@ -24,5 +29,4 @@ define(function(require) {
             }
         }
     });
-
 });
