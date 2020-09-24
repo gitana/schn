@@ -1,0 +1,29 @@
+<h2 class='list-row-info title'>
+    <a href='{{linkUri data}}'>{{title data}}</a>
+</h2>
+
+<div class='list-row-info-summary-block primary'>
+    <div class='list-row-info-summary-body'>
+        <p class='list-row-info'>Type: {{{type data true}}}</p>
+        <!--
+        <p class='list-row-info'>Published: {{data.year}}
+            Authors: {{data.contributors.[0].authors}}
+        </p>
+        -->
+        {{#if data.year}}
+        <p class='list-row-info'>Published: 
+            {{data.year}}
+        </p >
+        {{/if}}
+        {{#if data.contributors.[0].authors}}
+        <p class='list-row-info'>Authors: 
+            {{#each data.contributors.[0].authors}}{{#if @index}} and {{/if}}<b>{{this}}</b>{{/each}}
+        </p >
+        {{/if}}
+        {{#if data.contributors.[0].SecondaryAuthors.[0]}}
+        <p class='list-row-info'>Secondary Authors:&nbsp; 
+            {{#each data.contributors.[0].SecondaryAuthors}}{{#if @index}} and {{/if}}<b>{{this}}</b>{{/each}}
+        </p>
+        {{/if}}
+    </div>
+</div>
