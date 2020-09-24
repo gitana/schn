@@ -33,7 +33,7 @@
                                 {
                                     "key": "author",
                                     "title": "Author",
-                                    "field": "contributors[0].authors[0]"
+                                    "field": "contributors.authors"
                                 },
                                 {
                                     "key": "title",
