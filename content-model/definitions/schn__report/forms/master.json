@@ -1,0 +1,137 @@
+{
+	"title": "Report",
+	"description": "Report",
+	"_parent": "n:node",
+	"type": "object",
+	"fields": {
+		"title": {
+			"label": "Report Title",
+			"type": "text"
+		},
+		"abstract": {
+			"label": "Abstract",
+			"type": "textarea"
+		},
+		"year": {
+			"label": "Year",
+			"type": "text"
+		},
+		"contributors": {
+			"label": "Contributors",
+			"type": "array",
+			"items": {
+				"fields": {
+					"authors": {
+						"label": "Authors",
+						"type": "array"
+					}
+				}
+			}
+		},
+		"keywords": {
+			"label": "Keywords",
+			"type": "array"
+		},
+		"publisher": {
+			"label": "Publisher",
+			"type": "text"
+		},
+		"location": {
+			"label": "Location",
+			"type": "text"
+		},
+		"pages": {
+			"label": "Pages",
+			"type": "text"
+		},
+		"notes": {
+			"label": "Notes",
+			"type": "text"
+		},
+		"attachment": {
+			"label": "Attachment",
+			"type": "attachment-picker"
+		}
+	},
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"required": [
+		{
+			"label": "Array 1",
+			"type": "array"
+		}
+	],
+	"engineId": "alpaca1",
+	"_form_key": "master",
+	"properties": {
+		"title": {
+			"title": "Report Title",
+			"type": "string"
+		},
+		"abstract": {
+			"title": "Abstract",
+			"type": "string"
+		},
+		"year": {
+			"title": "Year",
+			"type": "string"
+		},
+		"contributors": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"authors": {
+						"title": "Authors",
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					}
+				},
+				"fields": {
+					"authors": {
+						"type": "array",
+						"items": {}
+					}
+				}
+			}
+		},
+		"keywords": {
+			"title": "Keywords",
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		},
+		"publisher": {
+			"title": "Publisher",
+			"type": "string"
+		},
+		"pubLocation": {
+			"title": "Location",
+			"type": "string"
+		},
+		"pages": {
+			"title": "Pages",
+			"type": "string"
+		},
+		"notes": {
+			"title": "Notes",
+			"type": "string"
+		},
+		"relatedDoc": {
+			"title": "Related Document",
+			"type": "array",
+			"items": {
+				"type": "object"
+			},
+			"_relator": {
+				"nodeType": "n:node"
+			}
+		}
+	},
+	"_doc": "601eb0f0c2f1d0adc71c",
+	"_qname": "o:601eb0f0c2f1d0adc71cmaster",
+	"_type": "n:form",
+	"_source_doc": "601eb0f0c2f1d0adc71c"
+}

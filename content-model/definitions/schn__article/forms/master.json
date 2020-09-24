@@ -1,0 +1,76 @@
+{
+	"engineId": "alpaca1",
+	"title": "Article",
+	"fields": {
+		"title": {
+			"label": "Title",
+			"type": "text"
+		},
+		"periodical": {
+			"label": "Periodical",
+			"type": "text"
+		},
+		"year": {
+			"label": "Year",
+			"type": "text"
+		},
+		"contributors": {
+			"label": "Contributors",
+			"type": "array",
+			"items": {
+				"fields": {
+					"authors": {
+						"label": "Authors",
+						"type": "array",
+						"items": {
+							"fields": {}
+						}
+					}
+				}
+			}
+		},
+		"volume": {
+			"type": "text",
+			"label": "Volume",
+			"required": false
+		},
+		"number": {
+			"label": "Issue",
+			"type": "text"
+		},
+		"pages": {
+			"type": "text",
+			"label": "Pages",
+			"required": false
+		},
+		"abstract": {
+			"label": "Abstract",
+			"type": "textarea"
+		},
+		"keywords": {
+			"type": "array",
+			"label": "Keywords",
+			"required": false,
+			"items": {
+				"type": "text",
+				"label": "Keywords",
+				"helper": "",
+				"placeholder": ""
+			}
+		},
+		"notes": {
+			"type": "text",
+			"label": "Notes",
+			"required": false
+		},
+		"attachment1": {
+			"label": "Attachment",
+			"type": "attachment-picker"
+		}
+	},
+	"_form_key": "master",
+	"_doc": "a30894dd11440a6a2713",
+	"_qname": "o:a30894dd11440a6a2713master",
+	"_type": "n:form",
+	"_source_doc": "a30894dd11440a6a2713"
+}

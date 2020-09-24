@@ -1,0 +1,76 @@
+{
+	"title": "Article",
+	"description": "Article",
+	"_parent": "n:node",
+	"type": "object",
+	"properties": {
+		"title": {
+			"type": "string"
+		},
+		"periodical": {
+			"type": "string"
+		},
+		"year": {
+			"type": "string"
+		},
+		"contributors": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"authors": {
+						"type": "array",
+						"items": {
+							"type": "string",
+							"properties": {}
+						}
+					}
+				}
+			}
+		},
+		"volume": {
+			"title": "Volume",
+			"type": "string"
+		},
+		"number": {
+			"type": "string"
+		},
+		"pages": {
+			"title": "Pages",
+			"type": "string"
+		},
+		"abstract": {
+			"type": "string"
+		},
+		"keywords": {
+			"title": "Keywords",
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		},
+		"notes": {
+			"title": "Notes",
+			"type": "string"
+		},
+		"attachment1": {
+			"type": "object",
+			"_attachment": {
+				"id": "default"
+			},
+			"properties": {
+				"text1": {
+					"type": "string"
+				}
+			}
+		}
+	},
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"required": [
+		"title"
+	],
+	"_doc": "00be2921bfa2d3ee8688",
+	"_qname": "schn:article",
+	"_type": "d:type",
+	"_source_doc": "00be2921bfa2d3ee8688"
+}

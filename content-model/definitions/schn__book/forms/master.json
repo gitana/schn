@@ -1,0 +1,83 @@
+{
+	"title": "Book",
+	"description": "Book",
+	"_parent": "n:node",
+	"type": "object",
+	"fields": {
+		"title": {
+			"type": "text",
+			"label": "Title",
+			"required": true
+		},
+		"year": {
+			"type": "text",
+			"label": "Year",
+			"required": false
+		},
+		"contributors": {
+			"label": "Contributors",
+			"type": "array",
+			"items": {
+				"fields": {
+					"authors": {
+						"label": "Authors",
+						"type": "array",
+						"items": {
+							"fields": {}
+						}
+					}
+				}
+			}
+		},
+		"isbn": {
+			"type": "text",
+			"label": "ISBN",
+			"required": false
+		},
+		"publisher": {
+			"label": "Publisher",
+			"type": "text"
+		},
+		"location": {
+			"label": "Location",
+			"type": "text"
+		},
+		"abstract": {
+			"type": "textarea",
+			"label": "Abstract",
+			"required": false
+		},
+		"keywords": {
+			"type": "array",
+			"label": "Keywords",
+			"required": false,
+			"items": {
+				"type": "text",
+				"label": "Keywords",
+				"helper": "",
+				"placeholder": ""
+			}
+		},
+		"notes": {
+			"type": "textarea",
+			"label": "Notes",
+			"required": false
+		},
+		"attachment1": {
+			"label": "Attachment 1",
+			"type": "attachment-picker"
+		}
+	},
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"required": [
+		{
+			"type": "text"
+		}
+	],
+	"engineId": "alpaca1",
+	"_form_key": "master",
+	"_doc": "0df6e447d9a1f9671519",
+	"_qname": "o:0df6e447d9a1f9671519master",
+	"_type": "n:form",
+	"_source_doc": "0df6e447d9a1f9671519"
+}

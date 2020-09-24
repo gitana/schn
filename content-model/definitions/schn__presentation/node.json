@@ -1,0 +1,46 @@
+{
+	"title": "Presentation",
+	"type": "object",
+	"properties": {
+		"title": {
+			"type": "string"
+		},
+		"year": {
+			"type": "string"
+		},
+		"contributors": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"authors": {
+						"type": "array",
+						"items": {
+							"type": "object"
+						}
+					}
+				}
+			}
+		},
+		"location": {
+			"type": "string"
+		},
+		"notes": {
+			"type": "string"
+		},
+		"attachment1": {
+			"type": "object",
+			"_attachment": {
+				"id": "default"
+			},
+			"properties": {}
+		}
+	},
+	"_parent": "n:node",
+	"description": "schn:presentation",
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"_doc": "9750bcf3b4610d77814f",
+	"_qname": "schn:presentation",
+	"_type": "d:type",
+	"_source_doc": "9750bcf3b4610d77814f"
+}

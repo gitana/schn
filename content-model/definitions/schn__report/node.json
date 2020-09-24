@@ -1,0 +1,69 @@
+{
+	"title": "Report",
+	"description": "Report",
+	"_parent": "n:node",
+	"type": "object",
+	"properties": {
+		"title": {
+			"type": "string"
+		},
+		"abstract": {
+			"type": "string"
+		},
+		"year": {
+			"type": "string"
+		},
+		"contributors": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"authors": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					}
+				}
+			}
+		},
+		"keywords": {
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		},
+		"publisher": {
+			"type": "string"
+		},
+		"location": {
+			"type": "string"
+		},
+		"pages": {
+			"type": "string"
+		},
+		"notes": {
+			"type": "string"
+		},
+		"attachment": {
+			"type": "object",
+			"_attachment": {
+				"id": "default"
+			},
+			"properties": {
+				"array1": {
+					"type": "array",
+					"items": {
+						"type": "object"
+					}
+				}
+			}
+		}
+	},
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"engineId": "alpaca1",
+	"_doc": "88ce49dc45de7539dd7e",
+	"_qname": "schn:report",
+	"_type": "d:type",
+	"_source_doc": "88ce49dc45de7539dd7e"
+}

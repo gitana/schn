@@ -1,0 +1,151 @@
+{
+	"title": "Book Chapter",
+	"description": "Book Chapter",
+	"_parent": "n:node",
+	"type": "object",
+	"fields": {
+		"title": {
+			"label": "Chapter Title",
+			"type": "text"
+		},
+		"secondarytitle": {
+			"label": "Book Title",
+			"type": "text"
+		},
+		"year": {
+			"label": "Year",
+			"type": "text"
+		},
+		"contributors": {
+			"label": "Contributors",
+			"type": "array",
+			"items": {
+				"fields": {
+					"authors": {
+						"label": "Chapter Authors",
+						"type": "array"
+					},
+					"SecondaryAuthors": {
+						"label": "Book Authors",
+						"type": "array"
+					}
+				}
+			}
+		},
+		"publisher": {
+			"label": "Publisher",
+			"type": "text"
+		},
+		"location": {
+			"label": "Location",
+			"type": "text"
+		},
+		"isbn": {
+			"label": "ISBN",
+			"type": "text"
+		},
+		"pages": {
+			"label": "Pages",
+			"type": "text"
+		},
+		"abstract": {
+			"label": "Abstract",
+			"type": "textarea"
+		},
+		"keywords": {
+			"label": "Keywords",
+			"type": "array"
+		},
+		"notes": {
+			"label": "Notes",
+			"type": "text"
+		},
+		"attachment": {
+			"label": "Attachment",
+			"type": "attachment-picker"
+		}
+	},
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"required": [
+		{
+			"label": "Notes",
+			"type": "text"
+		}
+	],
+	"engineId": "alpaca1",
+	"_form_key": "master",
+	"properties": {
+		"title": {
+			"title": "Chapter Title",
+			"type": "string"
+		},
+		"secondaryTitle": {
+			"title": "Book Title",
+			"type": "string"
+		},
+		"abstract": {
+			"title": "Abstract",
+			"type": "string"
+		},
+		"year": {
+			"title": "Year",
+			"type": "string"
+		},
+		"contributors": {
+			"label": "Contributors",
+			"type": "array",
+			"items": {
+				"fields": {
+					"authors": {
+						"label": "Authors",
+						"type": "array",
+						"items": {
+							"fields": {}
+						}
+					}
+				}
+			}
+		},
+		"keywords": {
+			"title": "Keywords",
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		},
+		"publisher": {
+			"title": "Publisher",
+			"type": "string"
+		},
+		"pubLocation": {
+			"title": "Location",
+			"type": "string"
+		},
+		"isbn": {
+			"title": "ISBN",
+			"type": "string"
+		},
+		"pages": {
+			"title": "Pages",
+			"type": "string"
+		},
+		"notes": {
+			"title": "Notes",
+			"type": "string"
+		},
+		"relatedDoc": {
+			"title": "Related Document",
+			"type": "array",
+			"items": {
+				"type": "object"
+			},
+			"_relator": {
+				"nodeType": "n:node"
+			}
+		}
+	},
+	"_doc": "5abbac6be8e838a64293",
+	"_qname": "o:5abbac6be8e838a64293master",
+	"_type": "n:form",
+	"_source_doc": "5abbac6be8e838a64293"
+}

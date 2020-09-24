@@ -1,0 +1,41 @@
+{
+	"fields": {
+		"title": {
+			"label": "Title"
+		},
+		"year": {
+			"label": "Year",
+			"type": "text"
+		},
+		"contributors": {
+			"label": "Contributors",
+			"type": "array",
+			"items": {
+				"fields": {
+					"authors": {
+						"label": "Authors",
+						"type": "array"
+					}
+				}
+			}
+		},
+		"location": {
+			"label": "Location",
+			"type": "text"
+		},
+		"notes": {
+			"label": "Notes",
+			"type": "text"
+		},
+		"attachment1": {
+			"label": "Attachment",
+			"type": "attachment-picker"
+		}
+	},
+	"title": "Default Form",
+	"engineId": "alpaca1",
+	"_doc": "a5ed953510d405f7ba03",
+	"_qname": "o:a5ed953510d405f7ba03default",
+	"_type": "n:form",
+	"_source_doc": "a5ed953510d405f7ba03"
+}
