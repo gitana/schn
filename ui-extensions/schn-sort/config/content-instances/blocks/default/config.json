@@ -1,0 +1,50 @@
+{
+    "evaluator": "or",
+    "condition": [
+        {
+            "evaluator": "uri-match",
+            "condition": "/projects/{projectId}/content/{qname}"
+        },
+        {
+            "evaluator": "uri-match",
+            "condition": "/projects/{projectId}/content"
+        }
+    ],
+    "config": {
+        "regions": {
+            "center": {
+                "type": "content-instances",
+                "config": {
+                    "replace": true,
+                    "chrome": false,
+                    "buttons": [],
+                    "icon": true,
+                    "checkbox": true,
+                    "loader": "gitana",
+                    "actions": true,
+                    "selectorGroups": {
+                        "sort-selector-group": {
+                            "fields": [
+                                {
+                                    "key": "year",
+                                    "title": "Year",
+                                    "field": "year"
+                                },
+                                {
+                                    "key": "author",
+                                    "title": "Author",
+                                    "field": "contributors[0].authors[0]"
+                                },
+                                {
+                                    "key": "title",
+                                    "title": "Title",
+                                    "field": "title"
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
