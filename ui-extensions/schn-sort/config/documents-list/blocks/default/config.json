@@ -34,11 +34,6 @@
                                     "key": "author",
                                     "title": "Author",
                                     "field": "contributors.authors"
-                                },
-                                {
-                                    "key": "title",
-                                    "title": "Title",
-                                    "field": "title"
                                 }
                             ]
                         }
