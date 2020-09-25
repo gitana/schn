@@ -1,10 +1,19 @@
 {
-    "evaluator": "document-is-folder",
-    "condition": true,
+    "evaluator": "or",
+    "condition": [
+        {
+            "evaluator": "uri-match",
+            "condition": "/projects/{projectId}/documents"
+        },
+        {
+            "evaluator": "uri-match",
+            "condition": "/projects/{projectId}/documents/{documentId}/browse"
+        }
+    ],
     "config": {
         "regions": {
             "center": {
-                "type": "documents-list",
+                "type": "documents-list-sort-fields",
                 "config": {
                     "replace": true,
                     "chrome": false,
@@ -14,7 +23,7 @@
                     "loader": "gitana",
                     "actions": true,
                     "selectorGroups": {
-                        "documents-list-sort-fields": {
+                        "sort-selector-group": {
                             "fields": [
                                 {
                                     "key": "year",
