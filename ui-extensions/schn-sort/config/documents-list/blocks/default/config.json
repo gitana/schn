@@ -14,7 +14,7 @@
                     "loader": "gitana",
                     "actions": true,
                     "selectorGroups": {
-                        "sort-selector-group": {
+                        "documents-list-sort-fields": {
                             "fields": [
                                 {
                                     "key": "year",
