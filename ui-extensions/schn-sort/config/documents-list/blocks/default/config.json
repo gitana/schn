@@ -7,7 +7,7 @@
         },
         {
             "evaluator": "uri-match",
-            "condition": "/projects/{projectId}/documents{nodeId}/browse"
+            "condition": "/projects/{projectId}/documents/{nodeId}/browse"
         }
     ],
     "config": {
