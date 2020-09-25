@@ -13,7 +13,7 @@
     "config": {
         "regions": {
             "center": {
-                "type": "documents-list-sort-fields",
+                "type": "documents-list",
                 "config": {
                     "replace": true,
                     "chrome": false,
