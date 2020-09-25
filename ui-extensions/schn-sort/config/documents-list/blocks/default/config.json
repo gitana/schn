@@ -1,15 +1,6 @@
 {
-    "evaluator": "or",
-    "condition": [
-        {
-            "evaluator": "uri-match",
-            "condition": "/projects/{projectId}/documents"
-        },
-        {
-            "evaluator": "uri-match",
-            "condition": "/projects/{projectId}/documents/{nodeId}/browse"
-        }
-    ],
+    "evaluator": "document-is-folder",
+    "condition": true,
     "config": {
         "regions": {
             "center": {
