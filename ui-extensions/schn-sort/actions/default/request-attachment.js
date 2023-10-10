@@ -2,6 +2,8 @@ define(function(require, exports, module) {
     var AbstractRibbonTool = require("ribbon/abstract-ribbon-tool");
     var RibbonToolRegistry = require("ribbon/ribbon-tool-registry");
 
+    console.log("register request attachment");
+
     return RibbonToolRegistry.register("request-attachment", AbstractRibbonTool.extend({
 
         setup: function(ribbon, el, model, tool, toolInstance, finished)
