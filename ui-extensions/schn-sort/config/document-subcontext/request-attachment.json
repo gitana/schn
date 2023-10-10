@@ -1,0 +1,19 @@
+{
+    "evaluator": "and",
+    "condition": [{
+        "evaluator": "context-project"
+    }, {
+        "evaluator": "context-document"
+    }],
+    "config": {
+        "ribbon": {
+            "actions": [{
+                "key": "request-attachment",
+                "title": "Request Attachment",
+                "iconClass": "fas fa-download",
+                "align": "left",
+                "action": "request-attachment"
+            }]
+        }
+    }
+}
