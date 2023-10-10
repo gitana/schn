@@ -3,11 +3,11 @@
     "condition": [
         {
             "evaluator": "uri-match",
-            "condition": "/projects/{projectId}/documents"
+            "condition": "/projects/{projectId}/branches/{branchId}/documents"
         },
         {
             "evaluator": "uri-match",
-            "condition": "/projects/{projectId}/documents/{documentId}/browse"
+            "condition": "/projects/{projectId}/branches/{branchId}/documents/{documentId}/browse"
         }
     ],
     "config": {
