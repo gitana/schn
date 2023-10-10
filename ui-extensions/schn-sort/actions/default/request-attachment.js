@@ -1,33 +1,29 @@
-/**
- * Creates a piece of content.
- */
 define(function(require, exports, module) {
-    var Ratchet = require("ratchet/ratchet");
+    var AbstractRibbonTool = require("ribbon/abstract-ribbon-tool");
+    var RibbonToolRegistry = require("ribbon/ribbon-tool-registry");
 
-    return Ratchet.Actions.register("request-attachment", Ratchet.AbstractUIAction.extend({
+    return RibbonToolRegistry.register("request-attachment", AbstractRibbonTool.extend({
 
-        defaultConfiguration: function()
+        setup: function(ribbon, el, model, tool, toolInstance, finished)
         {
-            console.log("configure!");
-            var config = this.base();
-
-            config.title = "Request Attachment";
-            config.iconClass = "fad fa-download";
-
-            return config;
-        },
-
-        execute: function(config, actionContext, callback)
-        {
-            this.doAction(actionContext, function(err, result) {
-                callback(err, result);
+            console.log("Setup request attachment");
+            var self = this;
+            model.actions.push({
+                "id": "request-attachment",
+                "iconClasses": "fad fa-download",
+                "cssClasses": "btn btn-link",
+                "title": "Request Attachment",
+                "disabled": false,
+                "align": "left",
+                "clickHandler": function(ribbon) {
+                    return function() {
+                        console.log("Request attachment...");
+                        return false;
+                    }
+                }(ribbon)
             });
-        },
 
-        doAction: function(actionContext, callback)
-        {
-            console.log("Request attachment...");
-            callback();
+            finished();
         }
     }));
 });
