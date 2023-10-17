@@ -10,6 +10,7 @@
             "tools": [{
                 "key": "request-attachment",
                 "config": {
+                    "enabled": true
                 },
                 "order": 2000
             }]
