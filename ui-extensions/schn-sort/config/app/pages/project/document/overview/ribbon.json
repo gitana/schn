@@ -1,7 +1,0 @@
-{
-    "type": "ribbon",
-    "config": {
-        "enabled": true,
-        "enableTools": ["request-attachment"]
-    }
-}
