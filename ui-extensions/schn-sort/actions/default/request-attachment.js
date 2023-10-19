@@ -11,8 +11,6 @@ define(function(require, exports, module) {
         {
             console.log("Setup request attachment");
             var self = this;
-            var emailId = tool.config.emailId;
-
             model.actions.push({
                 "id": "request-attachment",
                 "iconClasses": "fad fa-download",
@@ -27,6 +25,10 @@ define(function(require, exports, module) {
                         OneTeam.oneTeamApplication(ribbon, function() {
 
                             var application = this;
+                            var document = ribbon.observable("document").get();
+                            var user = ribbon.observable("user").get();
+                            var emailTemplateId = tool.confiog.emailTemplateId;
+
             
                             var publicEmailProviderId = null;
                             if (application.public)
@@ -36,35 +38,31 @@ define(function(require, exports, module) {
             
                             if (publicEmailProviderId)
                             {
-                                var emailModel = {
-                                    "username": "myguy",
-                                    "node": {
-                                        "title": "Heyhey"
-                                    }
-                                };
-                                
-                                console.log("Send email");
-            
-                                $.ajax({
-                                    "type": "POST",
-                                    "contentType": "application/json",
-                                    "dataType": "json",
-                                    "processData": false,
-                                    "url": `/proxy/applications/${application.getId()}/emailprovider/send?id=${emailId}`,
-                                    "data": JSON.stringify(emailModel),
-                                    "headers": {
-                                        "X-CSRF-TOKEN": OneTeam.getCsrfToken()
-                                    }
-                                }).done(function(data) {
-                
-                
-                                }).fail(function(xhr) {
-                                    OneTeam.errorHandler(xhr);
-                                }); 
+                                Chain(application).readEmailProvider(publicEmailProviderId).then(function() {
+
+                                    var emailProvider = this;
+                                    var from = emailProvider.from;
+
+                                    var emailModel = {
+                                        "user": user,
+                                        "node": document
+                                    };
+
+                                    // create email
+                                    this.createEmail({
+                                        "to": "michael.whitman@gitana.io",
+                                        "from": from,
+                                        "subject": "Attachment Request",
+                                        "bodyRepositoryId": document.getRepositoryId(),
+                                        "bodyBranchId": document.getBranchId(),
+                                        "bodyNodeId": emailTemplateId
+                                    }).then(function() {
+                                        console.log("Send email");
+                                        this.subchain(emailProvider).send(this, emailModel)
+                                    });
+                                });
                             }
                         });
-
-
                         return false;
                     }
                 }(ribbon)
