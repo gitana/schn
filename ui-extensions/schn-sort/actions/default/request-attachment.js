@@ -49,7 +49,7 @@ define(function(require, exports, module) {
                                     };
 
                                     // create email
-                                    this.createEmail({
+                                    application.createEmail({
                                         "to": "michael.whitman@gitana.io",
                                         "from": from,
                                         "subject": "Attachment Request",
