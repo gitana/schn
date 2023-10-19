@@ -10,7 +10,7 @@
             "tools": [{
                 "key": "request-attachment",
                 "config": {
-                    "emailId": "86f9e6f8f8915a2dd368"
+                    "emailTemplateId": "86f9e6f8f8915a2dd368"
                 },
                 "order": 2000
             }]
