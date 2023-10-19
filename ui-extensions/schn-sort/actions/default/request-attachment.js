@@ -21,7 +21,7 @@ define(function(require, exports, module) {
                 "align": "left",
                 "clickHandler": function(ribbon) {
                     return function() {
-                        Ratchet.block("Requesting Attachment...", function() {
+                        Ratchet.block("Requesting Attachment", "Please wait...", function() {
                             OneTeam.oneTeamApplication(ribbon, function() {
     
                                 var application = this;
