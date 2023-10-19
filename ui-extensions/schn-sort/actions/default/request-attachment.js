@@ -24,7 +24,7 @@ define(function(require, exports, module) {
                     return function() {
                         console.log("Request attachment...");
 
-                        OneTeam.oneTeamApplication(self, function() {
+                        OneTeam.oneTeamApplication(ribbon, function() {
 
                             var application = this;
             
