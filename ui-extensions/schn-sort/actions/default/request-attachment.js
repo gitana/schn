@@ -28,6 +28,7 @@ define(function(require, exports, module) {
                                 var document = ribbon.observable("document").get();
                                 var user = ribbon.observable("user").get();
                                 var emailTemplateId = tool.config.emailTemplateId;
+                                var requestEmail = tool.config.requestEmail;
     
                 
                                 var publicEmailProviderId = null;
@@ -50,7 +51,7 @@ define(function(require, exports, module) {
     
                                         // create email
                                         application.createEmail({
-                                            "to": "michael.whitman@gitana.io",
+                                            "to": requestEmail,
                                             "from": from,
                                             "subject": "Attachment Request",
                                             "bodyRepositoryId": document.getRepositoryId(),

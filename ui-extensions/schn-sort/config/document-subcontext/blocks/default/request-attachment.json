@@ -9,7 +9,8 @@
             "tools": [{
                 "key": "request-attachment",
                 "config": {
-                    "emailTemplateId": "86f9e6f8f8915a2dd368"
+                    "emailTemplateId": "86f9e6f8f8915a2dd368",
+                    "requestEmail": "michael.whitman@gitana.io"
                 },
                 "order": 2000
             }]
