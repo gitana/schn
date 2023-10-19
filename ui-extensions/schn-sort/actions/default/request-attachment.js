@@ -27,7 +27,7 @@ define(function(require, exports, module) {
                             var application = this;
                             var document = ribbon.observable("document").get();
                             var user = ribbon.observable("user").get();
-                            var emailTemplateId = tool.confiog.emailTemplateId;
+                            var emailTemplateId = tool.config.emailTemplateId;
 
             
                             var publicEmailProviderId = null;
