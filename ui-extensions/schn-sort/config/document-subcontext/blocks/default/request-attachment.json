@@ -1,9 +1,8 @@
 {
     "evaluator": "and",
     "condition": [{
-        "evaluator": "context-project"
-    }, {
-        "evaluator": "context-document"
+        "evaluator": "uri-starts-with",
+        "condition": "/projects/{projectId}/branches/{branchId}/documents/{documentId}"
     }],
     "config": {
         "ribbon": {
