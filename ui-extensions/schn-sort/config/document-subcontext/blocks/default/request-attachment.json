@@ -2,6 +2,24 @@
     "evaluator": "and",
     "condition": [{
         "evaluator": "context-document"
+    }, {
+        "evaluator": "or",
+        "condition": [{
+            "evaluator": "document-has-type",
+            "condition": "schn:article"
+        }, {
+            "evaluator": "document-has-type",
+            "condition": "schn:book"
+        }, {
+            "evaluator": "document-has-type",
+            "condition": "schn:chapter"
+        }, {
+            "evaluator": "document-has-type",
+            "condition": "schn:presentation"
+        }, {
+            "evaluator": "document-has-type",
+            "condition": "schn:report"
+        }]
     }],
     "config": {
         "ribbon": {
