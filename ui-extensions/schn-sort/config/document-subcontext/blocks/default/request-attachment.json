@@ -1,25 +1,20 @@
 {
-    "evaluator": "and",
+    "evaluator": "or",
     "condition": [{
-        "evaluator": "context-document"
+        "evaluator": "context-document-has-type",
+        "condition": "schn:article"
     }, {
-        "evaluator": "or",
-        "condition": [{
-            "evaluator": "document-has-type",
-            "condition": "schn:article"
-        }, {
-            "evaluator": "document-has-type",
-            "condition": "schn:book"
-        }, {
-            "evaluator": "document-has-type",
-            "condition": "schn:chapter"
-        }, {
-            "evaluator": "document-has-type",
-            "condition": "schn:presentation"
-        }, {
-            "evaluator": "document-has-type",
-            "condition": "schn:report"
-        }]
+        "evaluator": "context-document-has-type",
+        "condition": "schn:book"
+    }, {
+        "evaluator": "context-document-has-type",
+        "condition": "schn:chapter"
+    }, {
+        "evaluator": "context-document-has-type",
+        "condition": "schn:presentation"
+    }, {
+        "evaluator": "context-document-has-type",
+        "condition": "schn:report"
     }],
     "config": {
         "ribbon": {
