@@ -21,7 +21,7 @@
             "tools": [{
                 "key": "request-attachment",
                 "config": {
-                    "emailTemplateId": "c1ada99ab52c72281492",
+                    "emailTemplateId": "6928cad8f4008436534c",
                     "requestEmail": "malcolm.teasdale@gitana.io"
                 },
                 "order": 2000
