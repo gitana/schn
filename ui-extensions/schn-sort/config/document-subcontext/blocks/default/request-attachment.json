@@ -22,7 +22,7 @@
                 "key": "request-attachment",
                 "config": {
                     "emailTemplateId": "c1ada99ab52c72281492",
-                    "requestEmail": "michael.whitman@gitana.io"
+                    "requestEmail": "malcolm.teasdale@gitana.io"
                 },
                 "order": 2000
             }]
