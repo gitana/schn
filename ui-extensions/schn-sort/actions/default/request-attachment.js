@@ -59,11 +59,13 @@ define(function(require, exports, module) {
                                             "bodyNodeId": emailTemplateId
                                         }).then(function() {
                                             this.subchain(emailProvider).send(this, emailModel).then(function() {
-                                                console.log("Send email");
                                                 Ratchet.unblock();
+                                                OneTeam.showMessage("Attachment Request", "Your request has been sent.");
                                             })
                                         });
-                                    });
+                                    }).catch(function() {
+                                        OneTeam.showError("There was a problem requesting the attachment");
+                                    })
                                 }
                         });
                         });
