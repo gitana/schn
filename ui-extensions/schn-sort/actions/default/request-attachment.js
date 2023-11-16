@@ -4,24 +4,21 @@ define(function(require, exports, module) {
     var OneTeam = require("oneteam");
     var Ratchet = require("ratchet/ratchet");
 
-    console.log("register request attachment");
-
     return RibbonToolRegistry.register("request-attachment", AbstractRibbonTool.extend({
 
         setup: function(ribbon, el, model, tool, toolInstance, finished)
         {
-            console.log("Setup request attachment");
             var self = this;
             model.actions.push({
                 "id": "request-attachment",
                 "iconClasses": "fad fa-download",
                 "cssClasses": "btn btn-link",
-                "title": "Request Attachment",
+                "title": "Request Full Text",
                 "disabled": false,
                 "align": "left",
                 "clickHandler": function(ribbon) {
                     return function() {
-                        Ratchet.block("Requesting Attachment", "Please wait...", function() {
+                        Ratchet.block("Requesting Full Text", "Please wait...", function() {
                             OneTeam.oneTeamApplication(ribbon, function() {
     
                                 var application = this;
@@ -53,18 +50,18 @@ define(function(require, exports, module) {
                                         application.createEmail({
                                             "to": requestEmail,
                                             "from": from,
-                                            "subject": "Attachment Request",
+                                            "subject": "Full Text Request",
                                             "bodyRepositoryId": document.getRepositoryId(),
                                             "bodyBranchId": document.getBranchId(),
                                             "bodyNodeId": emailTemplateId
                                         }).then(function() {
                                             this.subchain(emailProvider).send(this, emailModel).then(function() {
                                                 Ratchet.unblock();
-                                                OneTeam.showMessage("Attachment Request", "Your request has been sent.");
+                                                OneTeam.showMessage("Full Text Request", "Your request has been sent.");
                                             })
                                         });
                                     }).catch(function() {
-                                        OneTeam.showError("There was a problem requesting the attachment");
+                                        OneTeam.showError("There was a problem requesting full text");
                                     })
                                 }
                         });
