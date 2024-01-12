@@ -40,6 +40,19 @@
                     }
                 }
             }
-        }
+        },
+        "documents-list-buttons": [{
+            "key": "new",
+            "buttons": [{
+                "key": "upload_csv",
+                "title": "Upload Endnote CSV",
+                "iconClass": "fad fa-table",
+                "align": "left",
+                "action": "upload-endnote-csv",
+                "allowPermission": [
+                    "create_subobjects"
+                ]
+            }]
+        }]
     }
 }
