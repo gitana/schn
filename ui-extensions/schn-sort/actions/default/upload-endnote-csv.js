@@ -258,47 +258,43 @@ define(function(require, exports, module) {
         {
             const self = this;
 
-            console.log("Create nodes to complete upload");
             // Parse actionContext.uploadedFiles to create documents from CSV(s) row entries
-
-            // Populating authors by splitting authors by ;
-            // Do the same for editors?
-            // Keywords appear to be one per line - can split by \n. What do they look like in the original CSV file?
-            // for the Book Title in chapters - it maps to secondarytitle, is Article Type meant to be a subfolder?
-            // - the plan is to have user navigate to the folder in question before uploading, unless there is a determined way to parse the path from the data?
-            // other types: Generic, Government Document, Conference Paper, Thesis, Conference Proceedings, etc.
             const typeMap = {
                 "Journal Article": "schn:article",
                 "Book": "schn:book",
                 "Book Section": "schn:chapter",
-                "Report": "schn:report"
+                "Report": "schn:report",
+                "Government Document": "schn:report",
+                "Thesis": "schn:report",
             };  
 
             const typeColumnMap = {
-                "Journal Article": {
+                "schn:article": {
                     "author": 1, // split into array and set contributors.authors
                     "year": 2,
                     "title": 3,
                     "periodical": 5,
-                    "volume": 9,
-                    "number": 11,
-                    "pages": 12,
+                    "volume": 8,
+                    "number": 10,
+                    "pages": 11,
+                    "path": 31,
                     "keywords": 37, // split into array with \n delimitter
                     "abstract": 38,
                     "notes": 39
                 },
-                "Book": {
+                "schn:book": {
                     "author": 1, // split into array and set contributors.authors
                     "year": 2,
                     "title": 3,
                     "location": 6,
                     "publisher": 7,
                     "isbn": 21,
+                    "path": 31,
                     "keywords": 37, // split into array with \n delimitter
                     "abstract": 38,
                     "notes": 39 
                 },
-                "Book Section": {
+                "schn:chapter": {
                     "author": 1, // split into array by ; and set contributors.authors
                     "year": 2, 
                     "title": 3,
@@ -307,76 +303,36 @@ define(function(require, exports, module) {
                     "location": 6,
                     "publisher": 7,
                     "isbn": 21,
+                    "path": 31,
                     "keywords": 37,
                     "abstract": 38,
                     "notes": 39
                 },
-                "Report": {
+                "schn:report": {
                     "author": 1, // split into array by ; and set contributors.authors
                     "year": 2,
                     "title": 3,
                     "location": 6,
                     "publisher": 7,
                     "pages": 12,
+                    "path": 31,
                     "keywords": 37, // split into array with \n delimitter
                     "abstract": 38,
                     "notes": 39
+                },
+                "schn:general": {
+                    "author": 1, // split into array by ; and set contributors.authors
+                    "year": 2,
+                    "title": 3,
+                    "secondarytitle": 5,
+                    "location": 6,
+                    "publisher": 7,
+                    "path": 31,
+                    "keywords": 37, // split into array with \n delimitter
+                    "abstract": 38,
+                    "notes": 39 
                 }
             };
-
-            // const columnNames = [
-            //     "type",
-            //     "author",
-            //     "year",
-            //     "title",
-            //     "secondaryAuthor",
-            //     "secondaryTitle",
-            //     "placePublished",
-            //     "publisher",
-            //     "volume",
-            //     "numVolumes",
-            //     "number",
-            //     "pages",
-            //     "section",
-            //     "tertiaryAuthor",
-            //     "tertiaryTitle",
-            //     "edition",
-            //     "date",
-            //     "workType",
-            //     "subsidiaryAuthor",
-            //     "shortTitle",
-            //     "isbn",
-            //     "doi",
-            //     "originalPublication",
-            //     "reprintEdition",
-            //     "reviewedItem",
-            //     "custom1",
-            //     "custom2",
-            //     "custom3",
-            //     "custom4",
-            //     "custom5",
-            //     "custom6",
-            //     "custom7",
-            //     "custom8",
-            //     "accessionNumber",
-            //     "callNumber",
-            //     "label",
-            //     "keywords",
-            //     "abstract",
-            //     "notes",
-            //     "researchNotes",
-            //     "url",
-            //     "fileAttachments",
-            //     "authorAddress",
-            //     "figure",
-            //     "caption",
-            //     "accessDate",
-            //     "translatedAuthor",
-            //     "translatedTitle",
-            //     "nameOfDatabase",
-            //     "databaseProvider",
-            //     "language"
-            // ];
 
             const processLine = async (line) => {
                 if (line.size <= 0) return;
@@ -384,40 +340,42 @@ define(function(require, exports, module) {
 
 
                 let nodeObj = {};
-                const typeQName = typeMap[type];
-                const columnMap = typeColumnMap[type];
+                const typeQName = typeMap[type] || "schn:general";
+                const columnMap = typeColumnMap[typeQName];
 
                 let result = null;
                 if (typeQName && columnMap)
                 {
                     nodeObj._type = typeQName;
-                    nodeObj.contributors = {};
+                    nodeObj.contributors = [{}];
+                    let path = actionContext.model.path;
+
                     for (const [key, column] of Object.entries(columnMap)) {
                         let value = line[column];
                         if (!value) continue;
                         
                         // Handle special keys
                         if (key === "author") {
-                            nodeObj.contributors.authors = value.split(";").map(author => author.trim());
+                            nodeObj.contributors[0].authors = value.split(";").map(author => author.trim());
                         }
                         else if (key === "editor") {
-                            nodeObj.contributors.SecondaryAuthors = value.split(";").map(author => author.trim());
+                            nodeObj.contributors[0].SecondaryAuthors = value.split(";").map(author => author.trim());
                         }
-                        else if (key == "keywords") {
+                        else if (key === "keywords") {
                             nodeObj.keywords = value.split("\n").map(keyword => keyword.trim());
                         }
-                        else if (key === "secondarytitle") {
-                            nodeObj.secondarytitle = value;
+                        else if (key === "path") {
+                            // override the path if present in the metadata
+                            path = value;
+                            delete nodeObj[key];
                         }
                         else {
-                            nodeObj[key] = value;
+                            nodeObj[key] = String(value);
                         }
                     }
 
-                    result = await new Promise((resolve, reject) => {
-                        // create project
-                        self.block("Uploading CSV documents...", function() {
-    
+                    try {
+                        const blah = await new Promise((resolve, reject) => {
                             // list the definitions on the branch
                             var branch = actionContext.branch;
                             Chain(branch)
@@ -428,25 +386,28 @@ define(function(require, exports, module) {
                                 .then(function() {
                                     this.createNode(nodeObj, {
                                         "rootNodeId": "root",
-                                        "parentFolderPath": actionContext.model.path,
+                                        "parentFolderPath": path,
                                         "associationType": "a:child"
                                     })
                                     .trap(function(err) {
                                         reject(err);
                                         return false;
-                                    }).then(function() {
+                                    }).then(function(n) {
                                         const node = this;
-                                        console.log(nodeObj);
-                                        self.unblock(function() {
-                                            // resolve(node);
-                                            resolve(nodeObj);
-                                        });
+                                        
+                                        // resolve json since node object seems to get nulled out
+                                        resolve(node.json());
                                     });
                             });
                         });
-                    });
+                        result = blah;
+                    }
+                    catch (e)
+                    {
+                        debugger;
+                        throw e;
+                    }
                 }
-
                 return result;
             }
             
@@ -490,26 +451,30 @@ define(function(require, exports, module) {
                 }
             }
 
-            Promise.all(tasks)
-                .catch(err => {
-                    callback(err)
-                    OneTeam.showError(err);
-                })
-                .then(fileResults => {
-                    let message = "Created these documents from CSV:\n<ul>";
-                    for (const nodes of fileResults)
-                    {
-                        for (const node of nodes)
+            self.block("Uploading CSV documents...", function() {
+                Promise.all(tasks)
+                    .catch(err => {
+                        OneTeam.showError(err, callback);
+                    })
+                    .then(fileResults => {
+                        let message = "Created these documents from CSV:\n<ul>";
+                        for (const nodes of fileResults)
                         {
-                            if (node) {
-                                message += `<li>${node.title || node._doc}</li>`
+                            for (const node of nodes)
+                            {
+                                if (node) {
+                                    message += `<li>${node.title || node._doc}</li>`
+                                }
                             }
                         }
-                    }
-
-                    message += "</ul>";
-                    OneTeam.showMessage("Success", message, callback);
-                });
+    
+                        message += "</ul>";
+                        OneTeam.showMessage("Success", message, callback);
+                    })
+                    .finally(() => {
+                        self.unblock(() => {});
+                    });
+            });
         },
 
         handleCancel: function(actionContext, control, div, callback)
